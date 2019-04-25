@@ -8,9 +8,12 @@ export default class Link extends EventEmitter{
     this.to = opts.to
     this.layer = opts.layer
     this.toInlet = opts.toInlet
-
+    this.fromOutlet = opts.fromOutlet
+    this.bendy = opts.bendy
+    
     this.line = new Konva.Line({
-      stroke: 'blue'
+      stroke: opts.color,
+      tension: this.bendy ? 0.6 : 0
     })
     this.reposition()
 
@@ -29,13 +32,16 @@ export default class Link extends EventEmitter{
   }
 
   reposition(){
-    const from = this.from.getOutletAttachPos()
+    const from = this.from.getOutletAttachPos(this.fromOutlet)
     const to = this.to.getInletAttachPos(this.toInlet)
 
-    this.line.points([
-      from.x, from.y,
-      to.x, to.y
-    ])
+    const points = [from.x, from.y]
+    if(this.bendy){
+      points.push((from.x+to.x)/2, ((from.y+to.y)/2) + 18)
+    }
+    points.push(to.x, to.y)
+    this.line.points(points)
+
     this.layer.draw()
   }
 }

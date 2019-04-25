@@ -34,6 +34,11 @@ export default class Automotron {
     this.links.splice(i, 1)
   }
 
+  createAgreementLink(){
+    //todo - currently ignored
+  }
+
+
   play() {
     this.sequence = []
     return this.step(this.startContainer)
@@ -42,8 +47,6 @@ export default class Automotron {
   step(container) {
     // eslint-disable-next-line no-console
     console.log('STEP', container)
-
-    
 
     return this.evaluateContainer(container)
       .then(value => {

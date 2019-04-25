@@ -1,6 +1,6 @@
 import Konva from 'konva'
-import ContainerNode from './nodes/Container';
-import GeneratorNode from './nodes/Generator'
+import ContainerNode from './nodes/ContainerNode';
+import GeneratorNode from './nodes/GeneratorNode'
 import Link from './Link'
 import Automotron from './automotron/Automotron'
 
@@ -80,17 +80,21 @@ function createContainer(text, opts) {
   })
   layer.add(container.group)
   layer.draw()
-  container.on('connect', connectContainer => {
-    createLink(container, connectContainer)
+  container.on('connect', payload => {
+    
+    createLink(container, payload.container, {
+      toInlet:payload.inlet, 
+      fromOutlet: payload.outlet,
+      bendy: payload.bendy,
+      color: payload.outlet==='agreement' ? 'green' : 'black'
+    })
   })
 
-
-  //container._automotronContainer = ac
   return ac
 }
 
-function createLink(containerA, containerB, toInlet = 'inlet') {
-  if(toInlet === 'generator'){
+function createLink(containerA, containerB, opts) {
+  if(opts.toInlet === 'generator'){
     containerB.setIsGenerated(true)
   }
 
@@ -98,21 +102,26 @@ function createLink(containerA, containerB, toInlet = 'inlet') {
     layer: linkLayer,
     from: containerA,
     to: containerB,
-    toInlet: toInlet
+    toInlet: opts.toInlet,
+    fromOutlet: opts.fromOutlet,
+    bendy: opts.bendy,
+    color: opts.color
   })
   linkLayer.add(link.line)
   containerA.addLink(link)
-  
 
   link.on('destroy', () => {
     automotron.removeLink(containerA.automotronNode, containerB.automotronNode)
   })
 
-  
-
   linkLayer.draw()
 
-  automotron.createLink(containerA.automotronNode, containerB.automotronNode)
+  if(opts.fromOutlet === 'agreement'){
+    automotron.createAgreementLink(containerA.automotronNode, containerB.automotronNode)
+  }else{
+    automotron.createLink(containerA.automotronNode, containerB.automotronNode)
+  }
+  
 
   return link
 }
@@ -128,8 +137,8 @@ function createGenerator(type, opts){
   layer.add(generator.group)
   layer.draw()
 
-  generator.on('connect', connectContainer => {
-    createLink(generator, connectContainer, 'generator')
+  generator.on('connect', payload => {
+    createLink(generator, payload.container, {toInlet:'generator', color:'#6a0080'})
   })
 }
 
