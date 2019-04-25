@@ -22,7 +22,7 @@ export default class GeneratorNode extends EventEmitter{
   setValue(value){
     value = value.trim()
     this.value = value
-    this.automotronNode.setValue(value.split('\n'))
+    this.automotronNode.setValue(value)
     this.resize()
   }
 

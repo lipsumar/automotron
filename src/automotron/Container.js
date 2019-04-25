@@ -1,13 +1,26 @@
-export default class Container{
-  constructor(opts){
-    this.value = opts.value
+export default class Container {
+  constructor(opts) {
+    this.evaluatedValue = null
+    this.setValue(opts.value)
   }
 
-  setValue(value){
-    this.value = value
+  setValue(value) {
+    if(typeof value === 'string'){
+      this.value = {
+        value,
+        agreement: { m: true, f: true, s: true, p: true }
+      }
+    }else{
+      this.value = value
+    }
+    
   }
 
-  evaluate(){
+  setEvaluatedValue(evValue){
+    this.evaluatedValue = evValue
+  }
+
+  evaluate() {
     return new Promise(resolve => {
       resolve(this.value)
     })

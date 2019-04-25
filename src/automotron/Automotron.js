@@ -34,12 +34,14 @@ export default class Automotron {
     this.links.splice(i, 1)
   }
 
-  createAgreementLink(){
-    //todo - currently ignored
+  createAgreementLink(from, to){
+    this.links.push(new Link({ from, to, type: 'agreement' }))
+    
   }
 
 
   play() {
+    console.log(this.links)
     this.sequence = []
     return this.step(this.startContainer)
   }
@@ -49,27 +51,33 @@ export default class Automotron {
     console.log('STEP', container)
 
     return this.evaluateContainer(container)
-      .then(value => {
-        this.sequence.push(value)
+      .then(evaluatedValue => {
+        container.setEvaluatedValue(evaluatedValue)
+        console.log('SET', container, evaluatedValue)
+        this.sequence.push(evaluatedValue)
+
         const nextContainer = this.pickNextContainer(container)
         if(nextContainer){
           return this.step(nextContainer)
         }
-        return this.sequence.join(' ')
+        return this.sequence
       })
   }
 
   evaluateContainer(container){
     const generator = this.getContainerGenerator(container)
     if(generator){
-      return generator.evaluate()
+      
+      const agreementContainer = this.getAgreementContainer(container)
+      console.log('agreement =>', agreementContainer)
+      return generator.evaluate(agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null)
     }
 
     return container.evaluate()
   }
 
   pickNextContainer(container){
-    const links = this.links.filter(l => l.from.id === container.id)
+    const links = this.links.filter(l => l.type==='main' && l.from.id === container.id)
     if(links.length === 0) return null
     return sample(links).to
   }
@@ -78,6 +86,12 @@ export default class Automotron {
     const links = this.links.filter(l => l.to.id === container.id && l.from instanceof Generator)
     if(links.length === 0) return null
     return sample(links).from
+  }
+
+  getAgreementContainer(container){
+    const link = this.links.find(l => l.type==='agreement' && l.from.id === container.id)
+    if(!link) return null
+    return link.to
   }
 
   setStartContainer(container) {

@@ -37,32 +37,45 @@ bgLayer.add(
 bgLayer.draw()
 
 
-const ac = createContainer('Lorem', {
+const containerNode1 = createContainer('Lorem', {
   pos: {
-    x: stage.width() / 2 - 150,
+    x: stage.width() / 2 - 250,
     y: stage.height() / 2
   }
 })
-automotron.setStartContainer(ac)
-createContainer('ipsum', {
+automotron.setStartContainer(containerNode1.automotronNode)
+const containerNode2 = createContainer('ipsum', {
   pos: {
     x: stage.width() / 2 + 50,
     y: stage.height() / 2
   }
 })
 
-createGenerator('list', {
+const generatorNode1 = createGenerator('list', 'un(ms)\nune(fs)\ndeux(*p)', {
   pos: {
     x: stage.width() / 2 - 250,
     y: stage.height() / 2 - 150
   }
 })
 
+const generatorNode2 = createGenerator('list', '[balle, balles](f)\ncuillère(fs)\nnapperons(mp)\nchien(ms)', {
+  pos: {
+    x: stage.width() / 2 + 50,
+    y: stage.height() / 2 - 150
+  }
+})
+
+//createLink(generatorNode1, containerNode1, {toInlet: 'generator', color:'#6a0080'})
+createLink(generatorNode2, containerNode2, {toInlet: 'generator', color:'#6a0080'})
+createLink(containerNode1, containerNode2, {color:'black'})
+
 
 document.querySelector('button.play').addEventListener('click', () => {
-  automotron.play().then(text => {
+  automotron.play().then(sequence => {
     // eslint-disable-next-line no-console
-    console.log('=>', text)
+    console.log('sequence =>', sequence)
+    // eslint-disable-next-line no-console
+    console.log('=>', sequence.map(i => i.value).join(' '))
   })
 })
 
@@ -90,7 +103,7 @@ function createContainer(text, opts) {
     })
   })
 
-  return ac
+  return container
 }
 
 function createLink(containerA, containerB, opts) {
@@ -126,20 +139,25 @@ function createLink(containerA, containerB, opts) {
   return link
 }
 
-function createGenerator(type, opts){
+function createGenerator(type, value, opts){
   const ag = automotron.createGenerator({type})
+  
+  
   const generator = new GeneratorNode({
     stage,
     layer,
     pos: opts.pos,
     automotronNode: ag
   })
+  generator.setValue(value)
   layer.add(generator.group)
   layer.draw()
 
   generator.on('connect', payload => {
     createLink(generator, payload.container, {toInlet:'generator', color:'#6a0080'})
   })
+
+  return generator
 }
 
 
@@ -182,7 +200,7 @@ stage.on('click', e => {
 
 
     //openGeneratorMenu()
-    createGenerator('list', {pos: point})
+    createGenerator('list', '', {pos: point})
   }
 })
 
