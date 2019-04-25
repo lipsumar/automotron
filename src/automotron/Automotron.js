@@ -1,6 +1,7 @@
 import Container from "./Container";
 import Link from "./Link";
 import sample from 'lodash.sample'
+import Generator from "./Generator";
 
 export default class Automotron {
   constructor() {
@@ -21,6 +22,13 @@ export default class Automotron {
     this.links.push(new Link({ from, to }))
   }
 
+  createGenerator(opts){
+    const g = new Generator(opts)
+    g.id = this.nextNodeId++
+    this.nodes.push(g)
+    return g
+  }
+
   removeLink(from, to){
     const i = this.links.findIndex(l => l.from.id === from.id && l.to.id === to.id)
     this.links.splice(i, 1)
@@ -32,8 +40,12 @@ export default class Automotron {
   }
 
   step(container) {
+    // eslint-disable-next-line no-console
     console.log('STEP', container)
-    return container.evaluate()
+
+    
+
+    return this.evaluateContainer(container)
       .then(value => {
         this.sequence.push(value)
         const nextContainer = this.pickNextContainer(container)
@@ -44,10 +56,25 @@ export default class Automotron {
       })
   }
 
+  evaluateContainer(container){
+    const generator = this.getContainerGenerator(container)
+    if(generator){
+      return generator.evaluate()
+    }
+
+    return container.evaluate()
+  }
+
   pickNextContainer(container){
     const links = this.links.filter(l => l.from.id === container.id)
     if(links.length === 0) return null
     return sample(links).to
+  }
+
+  getContainerGenerator(container){
+    const links = this.links.filter(l => l.to.id === container.id && l.from instanceof Generator)
+    if(links.length === 0) return null
+    return sample(links).from
   }
 
   setStartContainer(container) {

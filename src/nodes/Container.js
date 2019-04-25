@@ -3,6 +3,7 @@ import {EventEmitter} from 'events'
 
 const padding = 10
 const outletWidth = 6
+const generatorOutletHeight = 6
 
 export default class ContainerNode extends EventEmitter {
   constructor(opts) {
@@ -14,6 +15,7 @@ export default class ContainerNode extends EventEmitter {
     this.outletDragCurrentlyOnInlet = null
     this.outletLinks = []
     this.automotronNode = opts.automotronNode
+    this.isGenerated = false
     this.build()
     
   }
@@ -33,7 +35,7 @@ export default class ContainerNode extends EventEmitter {
 
     this.text = new Konva.Text({
       x: outletWidth + padding,
-      y: padding,
+      y: generatorOutletHeight + padding,
       text: this.value,
       width: 500 - padding * 2,
       fontSize: 30,
@@ -44,7 +46,7 @@ export default class ContainerNode extends EventEmitter {
 
     this.rect = new Konva.Rect({
       x: outletWidth,
-      y: 0,
+      y: generatorOutletHeight,
       width: Math.max(30, this.text.getTextWidth()) + padding * 2,
       height: this.text.height() + padding * 2,
       fill: 'white',
@@ -57,7 +59,7 @@ export default class ContainerNode extends EventEmitter {
 
     this.outlet = new Konva.Rect({
       x: outletWidth + this.rect.width(),
-      y: this.rect.height() / 2 - 5,
+      y: generatorOutletHeight+ this.rect.height() / 2 - 5,
       width: outletWidth,
       height: 10,
       fill: '#999'
@@ -67,7 +69,7 @@ export default class ContainerNode extends EventEmitter {
 
     this.outletHandle = new Konva.Rect({
       x: outletWidth + this.rect.width(),
-      y: this.rect.height() / 2 - 5,
+      y: generatorOutletHeight+this.rect.height() / 2 - 5,
       width: outletWidth,
       height: 10,
       fill: 'transparent',
@@ -78,8 +80,8 @@ export default class ContainerNode extends EventEmitter {
     this.outletHandle.on('dragstart', () => {
       this.outletLine = new Konva.Line({
         points: [
-          this.group.x() + outletWidth + this.group.width(), this.group.y() + this.group.height() / 2,
-          this.group.x() + outletWidth + this.group.width(), this.group.y() + this.group.height() / 2
+          this.group.x() + outletWidth + this.group.width(), this.group.y()+generatorOutletHeight + this.group.height() / 2,
+          this.group.x() + outletWidth + this.group.width(), this.group.y()+generatorOutletHeight + this.group.height() / 2
         ],
         stroke: 'black'
       })
@@ -93,7 +95,7 @@ export default class ContainerNode extends EventEmitter {
 
       const ori = {
         x: this.group.x() + outletWidth + this.group.width(),
-        y: this.group.y() + this.group.height() / 2
+        y: this.group.y() +generatorOutletHeight+ this.group.height() / 2
       }
       
       this.outletLine.points([
@@ -109,32 +111,34 @@ export default class ContainerNode extends EventEmitter {
         height: 10
       }
       let onContainer = null
-      this.layer.children.filter(c => c._isAutomotronNode && c._id!==this.group._id).forEach(g => {
-        const container = g._automotronNode
-        const inlet = container.inlet
-        const targetRect = {
-          x: g.x(),
-          y: g.y() + g.height() / 2,
-          width: outletWidth,
-          height: 10
-        }
+      this.layer.children
+        .filter(c => c._isAutomotronNode && c._id!==this.group._id && c._automotronNode instanceof ContainerNode)
+        .forEach(g => {
+          const container = g._automotronNode
+          const inlet = container.inlet
+          const targetRect = {
+            x: g.x(),
+            y: g.y() + g.height() / 2,
+            width: outletWidth,
+            height: 10
+          }
 
-        if(haveIntersection(movingRect, targetRect)){
-          inlet.fill('green')
-          onContainer = container
-        } else {
-          inlet.fill('#999')
-        }
-        inlet.draw()
+          if(haveIntersection(movingRect, targetRect)){
+            inlet.fill('green')
+            onContainer = container
+          } else {
+            inlet.fill('#999')
+          }
+          inlet.draw()
+        })
+
+        this.outletDragCurrentlyOnInlet = onContainer
+        
       })
-
-      this.outletDragCurrentlyOnInlet = onContainer
-      
-    })
 
     this.outletHandle.on('dragend', () => {
       this.outletHandle.x(outletWidth + this.rect.width())
-      this.outletHandle.y(this.rect.height() / 2 - 5)
+      this.outletHandle.y(generatorOutletHeight+this.rect.height() / 2 - 5)
       this.group.getParent().draw()
 
       if(this.outletDragCurrentlyOnInlet){
@@ -147,7 +151,7 @@ export default class ContainerNode extends EventEmitter {
 
     this.inlet = new Konva.Rect({
       x: 0,
-      y: this.rect.height() / 2 - 5,
+      y: generatorOutletHeight+this.rect.height() / 2 - 5,
       width: outletWidth,
       height: 10,
       fill: '#999'
@@ -155,6 +159,15 @@ export default class ContainerNode extends EventEmitter {
     this.inlet._isAutomotronInlet = true
     this.group.add(this.inlet)
 
+
+    this.generatorInlet = new Konva.Rect({
+      x: this.rect.width() / 2 - 5,
+      y: 0,
+      width: 10,
+      height: 6,
+      fill: '#9c27b0'
+    })
+    this.group.add(this.generatorInlet)
 
     this.resize()
   }
@@ -168,39 +181,62 @@ export default class ContainerNode extends EventEmitter {
   getOutletAttachPos(){
     return {
       x: outletWidth + this.group.x() + this.group.width(),
-      y: this.group.y() + this.group.height() / 2
+      y: generatorOutletHeight+this.group.y() + this.group.height() / 2
     }
   }
 
-  getInletAttachPos(){
-    return {
-      x: this.group.x(),
-      y: this.group.y() + this.group.height() / 2
+  getInletAttachPos(inlet = 'inlet'){
+    if(inlet=== 'inlet'){
+      return {
+        x: this.group.x(),
+        y: generatorOutletHeight+this.group.y() + this.group.height() / 2
+      }
+    } else if (inlet === 'generator'){
+      return {
+        x: outletWidth+this.group.x() + this.rect.width()/2,
+        y: this.group.y()
+      }
     }
+    
   }
 
   addLink(link){
     this.outletLinks.push(link)
   }
 
+  setIsGenerated(gen){
+    this.isGenerated = gen
+    this.value = null
+    this.resize()
+  }
+
   resize(){
-    this.text.width(999)
 
-    this.text.text(this.value)
-    const measuredWidth = this.text.getTextWidth()
-    this.text.width(Math.min(measuredWidth, 500))
+    if(this.isGenerated){
+      this.text.text('')
+      this.text.width(200)
+      this.rect.width(200)
+    }else{
+      this.text.width(999)
+
+      this.text.text(this.value)
+      const measuredWidth = this.text.getTextWidth()
+      this.text.width(Math.min(measuredWidth, 500))
+  
+      this.rect.width(Math.max(30, this.text.getTextWidth()) + padding * 2)
+      this.rect.height(this.text.height() + padding * 2)
+    }
 
 
-    this.rect.width(Math.max(30, this.text.getTextWidth()) + padding * 2)
-    this.rect.height(this.text.height() + padding * 2)
-    const w = this.rect.width()
-    this.group.width(w)
+    this.group.width(this.rect.width())
     this.group.height(this.rect.height())
 
     this.outlet.x(outletWidth + this.rect.width())
-    this.outlet.y(this.rect.height() / 2 - 5)
+    this.outlet.y(generatorOutletHeight+this.rect.height() / 2 - 5)
     this.outletHandle.x(outletWidth + this.rect.width())
-    this.outletHandle.y(this.rect.height() / 2 - 5)
+    this.outletHandle.y(generatorOutletHeight+this.rect.height() / 2 - 5)
+    this.generatorInlet.x(outletWidth + this.rect.width()/2-5)
+    this.generatorInlet.y(0)
   }
 }
 

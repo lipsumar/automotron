@@ -7,6 +7,7 @@ export default class Link extends EventEmitter{
     this.from = opts.from
     this.to = opts.to
     this.layer = opts.layer
+    this.toInlet = opts.toInlet
 
     this.line = new Konva.Line({
       stroke: 'blue'
@@ -29,7 +30,7 @@ export default class Link extends EventEmitter{
 
   reposition(){
     const from = this.from.getOutletAttachPos()
-    const to = this.to.getInletAttachPos()
+    const to = this.to.getInletAttachPos(this.toInlet)
 
     this.line.points([
       from.x, from.y,

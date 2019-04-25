@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import ContainerNode from './nodes/Container';
+import GeneratorNode from './nodes/Generator'
 import Link from './Link'
 import Automotron from './automotron/Automotron'
 
@@ -37,8 +38,8 @@ bgLayer.draw()
 
 
 const ac = createContainer('Lorem', {
-  pos:{
-    x: stage.width() / 2 - 100,
+  pos: {
+    x: stage.width() / 2 - 150,
     y: stage.height() / 2
   }
 })
@@ -50,15 +51,23 @@ createContainer('ipsum', {
   }
 })
 
+createGenerator('list', {
+  pos: {
+    x: stage.width() / 2 - 250,
+    y: stage.height() / 2 - 150
+  }
+})
+
 
 document.querySelector('button.play').addEventListener('click', () => {
   automotron.play().then(text => {
+    // eslint-disable-next-line no-console
     console.log('=>', text)
   })
 })
 
 
-function createContainer(text, opts){
+function createContainer(text, opts) {
   const ac = automotron.createContainer({
     value: text
   })
@@ -75,28 +84,53 @@ function createContainer(text, opts){
     createLink(container, connectContainer)
   })
 
-  
+
   //container._automotronContainer = ac
   return ac
 }
 
-function createLink(containerA, containerB){
+function createLink(containerA, containerB, toInlet = 'inlet') {
+  if(toInlet === 'generator'){
+    containerB.setIsGenerated(true)
+  }
+
   const link = new Link({
     layer: linkLayer,
     from: containerA,
-    to: containerB
+    to: containerB,
+    toInlet: toInlet
   })
   linkLayer.add(link.line)
   containerA.addLink(link)
-  linkLayer.draw()
+  
 
   link.on('destroy', () => {
     automotron.removeLink(containerA.automotronNode, containerB.automotronNode)
   })
+
   
+
+  linkLayer.draw()
+
   automotron.createLink(containerA.automotronNode, containerB.automotronNode)
-  
+
   return link
+}
+
+function createGenerator(type, opts){
+  const ag = automotron.createGenerator({type})
+  const generator = new GeneratorNode({
+    stage,
+    layer,
+    pos: opts.pos,
+    automotronNode: ag
+  })
+  layer.add(generator.group)
+  layer.draw()
+
+  generator.on('connect', connectContainer => {
+    createLink(generator, connectContainer, 'generator')
+  })
 }
 
 
@@ -112,6 +146,7 @@ stage.on('dblclick', e => {
     current = current.getParent()
     if (current._isAutomotronNode) {
       editContainer(current._automotronNode)
+      
       return
     }
   }
@@ -121,17 +156,32 @@ stage.on('dblclick', e => {
   transform.invert()
   const point = transform.point(stage.getPointerPosition())
 
-  createContainer('...', {pos: point})
+  createContainer('...', { pos: point })
+})
+
+
+stage.on('contentContextmenu', (e) => {
+  e.evt.preventDefault();
+})
+stage.on('click', e => {
+  if (e.evt.button === 2 || e.evt.ctrlKey) {
+    // right click
+
+    const transform = stage.getAbsoluteTransform().copy()
+    transform.invert()
+    const point = transform.point(stage.getPointerPosition())
+
+
+    //openGeneratorMenu()
+    createGenerator('list', {pos: point})
+  }
 })
 
 
 
-
-
-
-function editContainer(container){
+function editContainer(container) {
   // at first lets find position of text node relative to the stage:
-  var textPosition = container.rect.getAbsolutePosition();
+  var textPosition = container.text.getAbsolutePosition();
 
   // then lets find position of stage container on the page:
   var stageBox = stage.container().getBoundingClientRect();
@@ -151,12 +201,13 @@ function editContainer(container){
   textarea.style.top = areaPosition.y + 'px';
   textarea.style.left = areaPosition.x + 'px';
   textarea.style.width = container.rect.width() + 'px'
+  textarea.style.height = container.rect.height() + 'px'
 
   textarea.focus();
 
-  textarea.addEventListener('keydown', function(e) {
+  textarea.addEventListener('keydown', function (e) {
     // hide on enter
-    if (e.keyCode === 13) {
+    if (e.keyCode === 13 && e.metaKey) {
       container.setValue(textarea.value);
       layer.draw();
       document.body.removeChild(textarea);
