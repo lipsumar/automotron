@@ -153,8 +153,14 @@ export default class ContainerNode extends EventEmitter {
     }
   }
 
-  getOutlet(){
-    return this.outlet
+  getOutlet(outlet = 'outlet'){
+    switch(outlet){
+      case 'outlet':
+        return this.outlet
+      case 'agreement':
+        return this.agreementOutlet
+    }
+    
   }
 
   addLink(link) {
