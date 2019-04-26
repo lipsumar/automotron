@@ -38,45 +38,60 @@ bgLayer.add(
 bgLayer.draw()
 
 
-const containerNode1 = createContainer('Lorem', {
+const containerNode1 = createContainer('AUTO', {
   pos: {
-    x: stage.width() / 2 - 250,
+    x: stage.width() / 2 - 350,
     y: stage.height() / 2
-  }
+  },
+  stroke: 'green'
 })
 automotron.setStartContainer(containerNode1.automotronNode)
-const containerNode2 = createContainer('ipsum', {
+const containerNode2 = createContainer('', {
   pos: {
-    x: stage.width() / 2 + 50,
+    x: stage.width() / 2 - 150,
     y: stage.height() / 2
   }
 })
 
-const generatorNode1 = createGenerator('list', 'un(ms)\nune(fs)\ndeux(*p)', {
+const containerNode3 = createContainer('TRON', {
   pos: {
-    x: stage.width() / 2 - 250,
-    y: stage.height() / 2 - 150
+    x: stage.width() / 2 + 250,
+    y: stage.height() / 2
   }
 })
 
-const generatorNode2 = createGenerator('list', '[balle, balles](f)\ncuillère(fs)\nnapperons(mp)\nchien(ms)', {
+const generatorNode1 = createGenerator('list', 'MO\nTO\nNO\nDO\nFLO\nMO\nTRO', {
   pos: {
-    x: stage.width() / 2 + 50,
-    y: stage.height() / 2 - 150
+    x: stage.width() / 2 - 150,
+    y: stage.height() / 2 - 200
   }
 })
+
+const splitNode1 = createSwitch({
+  pos:{
+    x: stage.width() / 2 + 130,
+    y: stage.height() / 2
+  }
+})
+
 
 //createLink(generatorNode1, containerNode1, {toInlet: 'generator', color:'#6a0080'})
-createLink(generatorNode2, containerNode2, {toInlet: 'generator', color:'#6a0080'})
+createLink(generatorNode1, containerNode2, {toInlet: 'generator', color:'#6a0080'})
 createLink(containerNode1, containerNode2, {color:'black'})
+createLink(containerNode2, splitNode1, {color:'black'})
+createLink(splitNode1, containerNode3, {color:'black', fromOutlet:'split-a'})
+createLink(splitNode1, containerNode2, {color:'black', fromOutlet:'split-b'})
 
 
 document.querySelector('button.play').addEventListener('click', () => {
   automotron.play().then(sequence => {
     // eslint-disable-next-line no-console
     console.log('sequence =>', sequence)
+    const text = sequence.map(i => i.value).join(' ')
     // eslint-disable-next-line no-console
-    console.log('=>', sequence.map(i => i.value).join(' '))
+    console.log('=>', text)
+
+    document.querySelector('.output__body').innerHTML = text
   })
 })
 
@@ -90,7 +105,8 @@ function createContainer(text, opts) {
     layer,
     value: text,
     pos: opts.pos,
-    automotronNode: ac
+    automotronNode: ac,
+    stroke: opts.stroke
   })
   layer.add(container.group)
   layer.draw()
@@ -177,6 +193,7 @@ function createSwitch(opts){
   split.on('connect', payload => {
     createLink(split, payload.container, {fromOutlet:payload.outlet, color:'black'})
   })
+  return split
 }
 
 
@@ -244,6 +261,12 @@ function openNodeMenu(pos){
   nodeMenu.style.top = `${pos.y}px`
   nodeMenu.style.left = `${pos.x}px`
 }
+
+
+const outputEl = document.querySelector('#output')
+document.querySelector('.output__handle').addEventListener('click', () => {
+  outputEl.classList.toggle('open')
+})
 
 
 

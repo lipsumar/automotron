@@ -24,6 +24,7 @@ export default class ContainerNode extends EventEmitter {
       left: true,
       right: true
     }
+    this.stroke = opts.stroke || '#999'
     this.build()
 
   }
@@ -58,7 +59,7 @@ export default class ContainerNode extends EventEmitter {
       width: Math.max(30, this.text.getTextWidth()) + padding * 2,
       height: this.text.height() + padding * 2,
       fill: 'rgba(255, 255, 255, 0.8)',
-      stroke: '#999',
+      stroke: this.stroke,
       strokeWidth: 2
     });
 
