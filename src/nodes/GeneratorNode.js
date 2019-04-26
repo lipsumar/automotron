@@ -94,6 +94,10 @@ export default class GeneratorNode extends EventEmitter{
     }
   }
 
+  getOutlet(){
+    return this.outlet
+  }
+  
   resize(){
     this.text.text(this.value)
     this.rect.height(25 + this.text.height())

@@ -2,6 +2,7 @@ import Konva from 'konva'
 import {EventEmitter} from 'events'
 import ContainerNode from './ContainerNode'
 import BaseLet from './BaseLet';
+import SplitNode from './SplitNode';
 
 
 export default class Outlet extends EventEmitter{
@@ -78,7 +79,7 @@ export default class Outlet extends EventEmitter{
       }
       let onContainer = null
       this.node.layer.children
-        .filter(c => c._isAutomotronNode && c._id !== this.node.group._id && c._automotronNode instanceof ContainerNode)
+        .filter(c => c._isAutomotronNode && c._id !== this.node.group._id && (c._automotronNode instanceof ContainerNode || c._automotronNode instanceof SplitNode))
         .forEach(g => {
           const container = g._automotronNode
           const inlet = container.getInlet(this.toInlet)

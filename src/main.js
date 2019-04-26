@@ -3,6 +3,7 @@ import ContainerNode from './nodes/ContainerNode';
 import GeneratorNode from './nodes/GeneratorNode'
 import Link from './Link'
 import Automotron from './automotron/Automotron'
+import SplitNode from './nodes/SplitNode'
 
 const automotron = new Automotron()
 
@@ -94,7 +95,6 @@ function createContainer(text, opts) {
   layer.add(container.group)
   layer.draw()
   container.on('connect', payload => {
-    
     createLink(container, payload.container, {
       toInlet:payload.inlet, 
       fromOutlet: payload.outlet,
@@ -121,7 +121,7 @@ function createLink(containerA, containerB, opts) {
     color: opts.color
   })
   linkLayer.add(link.line)
-  containerA.addLink(link)
+  //containerA.addLink(link)
 
   link.on('destroy', () => {
     automotron.removeLink(containerA.automotronNode, containerB.automotronNode)
@@ -132,7 +132,10 @@ function createLink(containerA, containerB, opts) {
   if(opts.fromOutlet === 'agreement'){
     automotron.createAgreementLink(containerA.automotronNode, containerB.automotronNode)
   }else{
-    automotron.createLink(containerA.automotronNode, containerB.automotronNode)
+    automotron.createLink(containerA.automotronNode, containerB.automotronNode, {
+      fromOutlet: opts.fromOutlet,
+      toInlet: opts.toInlet
+    })
   }
   
 
@@ -158,6 +161,22 @@ function createGenerator(type, value, opts){
   })
 
   return generator
+}
+
+function createSwitch(opts){
+  const amtSplit = automotron.createOperator('split')
+  const split = new SplitNode({
+    stage,
+    layer,
+    pos: opts.pos,
+    automotronNode: amtSplit
+  })
+  layer.add(split.group)
+  layer.draw()
+
+  split.on('connect', payload => {
+    createLink(split, payload.container, {fromOutlet:payload.outlet, color:'black'})
+  })
 }
 
 
@@ -187,6 +206,7 @@ stage.on('dblclick', e => {
 })
 
 
+var createAtPoint = null;
 stage.on('contentContextmenu', (e) => {
   e.evt.preventDefault();
 })
@@ -198,11 +218,32 @@ stage.on('click', e => {
     transform.invert()
     const point = transform.point(stage.getPointerPosition())
 
-
-    //openGeneratorMenu()
-    createGenerator('list', '', {pos: point})
+    createAtPoint = point
+    openNodeMenu({x:e.evt.clientX, y:e.evt.clientY})
+    //createGenerator('list', '', {pos: point})
   }
 })
+
+
+const nodeMenu = document.querySelector('#node-menu')
+nodeMenu.querySelectorAll('.node-menu__item').forEach(el => {
+  el.addEventListener('click', e => {
+    nodeMenu.style.display = 'none'
+    const type = e.target.innerHTML
+    switch(type){
+      case 'list':
+        createGenerator('list', '', {pos: createAtPoint})
+        break;
+      case 'split':
+        createSwitch({pos: createAtPoint})
+    }
+  })
+})
+function openNodeMenu(pos){
+  nodeMenu.style.display = 'block'
+  nodeMenu.style.top = `${pos.y}px`
+  nodeMenu.style.left = `${pos.x}px`
+}
 
 
 

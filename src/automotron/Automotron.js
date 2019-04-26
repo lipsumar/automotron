@@ -2,6 +2,7 @@ import Container from "./Container";
 import Link from "./Link";
 import sample from 'lodash.sample'
 import Generator from "./Generator";
+import Split from './Split'
 
 export default class Automotron {
   constructor() {
@@ -18,8 +19,8 @@ export default class Automotron {
     return c
   }
 
-  createLink(from, to) {
-    this.links.push(new Link({ from, to }))
+  createLink(from, to, opts) {
+    this.links.push(new Link({ from, to, fromOutlet: opts.fromOutlet, toInlet:opts.toInlet }))
   }
 
   createGenerator(opts){
@@ -36,9 +37,14 @@ export default class Automotron {
 
   createAgreementLink(from, to){
     this.links.push(new Link({ from, to, type: 'agreement' }))
-    
   }
 
+  createOperator(){
+    const split = new Split()
+    split.id = this.nextNodeId++
+    this.nodes.push(split)
+    return split
+  }
 
   play() {
     console.log(this.links)
@@ -52,9 +58,12 @@ export default class Automotron {
 
     return this.evaluateContainer(container)
       .then(evaluatedValue => {
-        container.setEvaluatedValue(evaluatedValue)
-        console.log('SET', container, evaluatedValue)
-        this.sequence.push(evaluatedValue)
+        if(evaluatedValue !== null){
+          container.setEvaluatedValue(evaluatedValue)
+          console.log('SET', container, evaluatedValue)
+          this.sequence.push(evaluatedValue)
+        }
+        
 
         const nextContainer = this.pickNextContainer(container)
         if(nextContainer){
@@ -65,6 +74,11 @@ export default class Automotron {
   }
 
   evaluateContainer(container){
+
+    if(container instanceof Split){
+      return Promise.resolve(null)
+    }
+
     const generator = this.getContainerGenerator(container)
     if(generator){
       
@@ -77,8 +91,15 @@ export default class Automotron {
   }
 
   pickNextContainer(container){
-    const links = this.links.filter(l => l.type==='main' && l.from.id === container.id)
+    let links = this.links.filter(l => l.type==='main' && l.from.id === container.id)
     if(links.length === 0) return null
+
+    if(container instanceof Split){
+      const nextOutlet = container.evaluateNextOutlet()
+      console.log('===>', nextOutlet, links)
+      links = links.filter(l => l.fromOutlet === nextOutlet)
+    }
+
     return sample(links).to
   }
 

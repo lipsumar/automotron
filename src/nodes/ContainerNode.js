@@ -152,6 +152,10 @@ export default class ContainerNode extends EventEmitter {
     }
   }
 
+  getOutlet(){
+    return this.outlet
+  }
+
   addLink(link) {
     this.outletLinks.push(link)
   }

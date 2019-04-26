@@ -32,8 +32,8 @@ export default class Link extends EventEmitter{
   }
 
   reposition(){
-    const from = this.from.getOutletAttachPos(this.fromOutlet)
-    const to = this.to.getInletAttachPos(this.toInlet)
+    const from = this.from.getOutlet(this.fromOutlet).absPos() // this.from.getOutletAttachPos(this.fromOutlet)
+    const to = this.to.getInlet(this.toInlet).absPos()// this.to.getInletAttachPos(this.toInlet)
 
     const points = [from.x, from.y]
     if(this.bendy){

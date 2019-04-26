@@ -12,8 +12,8 @@ export default class Inlet{
 
   build(){
     this.rect = new Konva.Rect({
-      x: this.x(),
-      y: this.y(),
+      x: this.x(false),
+      y: this.y(false),
       width: this.width(),
       height: this.height(),
       fill: '#BBB'

@@ -57,6 +57,13 @@ export default {
     }
   },
 
+  absPos(center){
+    return {
+      x: this.absX(center),
+      y: this.absY(center)
+    }
+  },
+
   reposition() {
     this.rect.x(this.x(false))
     this.rect.y(this.y(false))
