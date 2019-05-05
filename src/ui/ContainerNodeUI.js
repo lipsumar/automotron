@@ -1,13 +1,13 @@
 import Konva from 'konva'
 import { EventEmitter } from 'events'
-import Outlet from './Outlet'
-import Inlet from './Inlet'
+import OutletUI from './OutletUI'
+import InletUI from './InletUI'
 
 const padding = 10
 const outletWidth = 6
 const generatorOutletHeight = 6
 
-export default class ContainerNode extends EventEmitter {
+export default class ContainerNodeUI extends EventEmitter {
   constructor(opts) {
     super()
     this.stage = opts.stage
@@ -67,19 +67,19 @@ export default class ContainerNode extends EventEmitter {
     this.group.add(this.text)
 
 
-    this.outlet = new Outlet(this, 'right')
+    this.outlet = new OutletUI(this, 'right')
     this.outlet.on('connect', container => {
       this.emit('connect', {container, inlet: 'inlet', outlet: 'outlet'})
     })
 
 
-    this.inlet = new Inlet(this, 'left')
+    this.inlet = new InletUI(this, 'left')
 
 
-    this.generatorInlet = new Inlet(this, 'top')
+    this.generatorInlet = new InletUI(this, 'top')
 
 
-    this.agreementOutlet = new Outlet(this, 'bottom', {
+    this.agreementOutlet = new OutletUI(this, 'bottom', {
       offset:{
         x: -15,
         y: 0
@@ -91,7 +91,7 @@ export default class ContainerNode extends EventEmitter {
       this.emit('connect', {container, inlet: 'agreement', outlet: 'agreement', bendy: true})
     })
 
-    this.agreementInlet = new Inlet(this, 'bottom', {
+    this.agreementInlet = new InletUI(this, 'bottom', {
       offset:{
         x: 15,
         y: 0

@@ -1,7 +1,9 @@
-export default class Container {
+export default class ContainerNode {
   constructor(opts) {
     this.evaluatedValue = null
     this.setValue(opts.value)
+    this.pos = opts.pos
+    this.type = 'container'
   }
 
   setValue(value) {

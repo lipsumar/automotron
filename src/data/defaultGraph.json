@@ -1,0 +1,103 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "container",
+      "value": "AUTO",
+      "pos": {
+        "x": -200,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "type": "container",
+      "value": "",
+      "pos": {
+        "x": -50,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "type": "container",
+      "value": "TRON",
+      "pos": {
+        "x": 280,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "type": "generator",
+      "generator": "list",
+      "value": "MO\nTO\nNO\nDO\nFLO\nMO\nTRO",
+      "pos": {
+        "x": -40,
+        "y": -220
+      }
+    },
+    {
+      "id": 5,
+      "type": "operator",
+      "operator": "split",
+      "pos":{
+        "x": 190,
+        "y": 0
+      }
+    }
+  ],
+  "links":[
+    {
+      "from": {
+        "nodeId": 1,
+        "outlet": "outlet"
+      },
+      "to": {
+        "nodeId": 2,
+        "inlet": "inlet"
+      }
+    },
+    {
+      "from": {
+        "nodeId": 2,
+        "outlet": "outlet"
+      },
+      "to": {
+        "nodeId": 5,
+        "inlet": "inlet"
+      }
+    },
+    {
+      "from": {
+        "nodeId": 4,
+        "outlet": "outlet"
+      },
+      "to": {
+        "nodeId": 2,
+        "inlet": "generator"
+      }
+    },
+    {
+      "from": {
+        "nodeId": 5,
+        "outlet": "split-a"
+      },
+      "to": {
+        "nodeId": 3,
+        "inlet": "inlet"
+      }
+    },
+    {
+      "from": {
+        "nodeId": 5,
+        "outlet": "split-b"
+      },
+      "to": {
+        "nodeId": 2,
+        "inlet": "inlet"
+      }
+    }
+  ],
+  "startNodeId": 1
+}

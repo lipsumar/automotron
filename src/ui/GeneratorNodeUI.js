@@ -1,22 +1,23 @@
 import Konva from 'konva'
 import {EventEmitter} from 'events'
-import Outlet from './Outlet';
+import OutletUI from './OutletUI';
 
 
 
-export default class GeneratorNode extends EventEmitter{
+export default class GeneratorNodeUI extends EventEmitter{
   constructor(opts){
     super()
     this.pos = opts.pos
     this.stage = opts.stage
     this.layer = opts.layer
-    this.value = ''
+    this.value = opts.value
     this.outletDragCurrentlyOnInlet = null
     this.automotronNode = opts.automotronNode
     this.hasOutlet = {
       bottom: true
     }
     this.build()
+    this.resize()
   }
 
   setValue(value){
@@ -71,7 +72,7 @@ export default class GeneratorNode extends EventEmitter{
       fill: '#fff'
     })
   
-    this.outlet = new Outlet(this, 'bottom', {toInlet:'generator'})
+    this.outlet = new OutletUI(this, 'bottom', {toInlet:'generator'})
     this.outlet.on('connect', container => {
       this.emit('connect', {container, toInlet:'generator'})
     })

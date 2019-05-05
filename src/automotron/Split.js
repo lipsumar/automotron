@@ -1,8 +1,9 @@
 import sample from 'lodash.sample'
 
 export default class Split{
-  constructor(){
-
+  constructor(opts){
+    this.type = 'operator'
+    this.pos = opts.pos
   }
 
   evaluateNextOutlet(){

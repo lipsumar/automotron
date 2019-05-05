@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  font-family: Avenir, sans-serif;
+}
+button{
+  display: block;
+  border: none;
+  padding: 4px 7px;
+  position: absolute;
+  top:10px;
+  left:10px;
+}
+#node-menu{
+  position: absolute;
+  display: none;
+  background-color: #fff;
+  min-width:150px
+}
+.node-menu__item{
+  padding: 3px 6px;
+  border-bottom:1px solid #ccc;
+  font-size:1.2em;
+  cursor: pointer;
+}
+#output{
+  position: absolute;
+  right:-400px;
+  top:0;
+  bottom:0;
+  background-color: #fff;
+  display: flex;
+  transition: transform 0.4s ease;
+}
+#output.open{
+  transform: translate(-400px, 0)
+}
+.output__handle{
+  background-color: #ccc;
+  padding: 5px;
+  box-sizing: border-box;
+  width:26px;
+  cursor: pointer;
+}
+.output__handle > label{
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: normal;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.output__body{
+  width:400px;
+  box-sizing: border-box;
+  padding: 10px;
+}

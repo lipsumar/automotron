@@ -1,9 +1,9 @@
 import Konva from 'konva'
 import { EventEmitter } from 'events'
-import Outlet from './Outlet'
-import Inlet from './Inlet'
+import OutletUI from './OutletUI'
+import InletUI from './InletUI'
 
-export default class SplitNode extends EventEmitter {
+export default class SplitNodeUI extends EventEmitter {
   constructor(opts){
     super()
     this.stage = opts.stage
@@ -52,9 +52,9 @@ export default class SplitNode extends EventEmitter {
     this.group.add(this.rect)
     this.group.add(this.pcRect)
 
-    this.inlet = new Inlet(this, 'left')
+    this.inlet = new InletUI(this, 'left')
 
-    this.outletA = new Outlet(this, 'right', {
+    this.outletA = new OutletUI(this, 'right', {
       offset:{
         x: 0,
         y: -25
@@ -64,7 +64,7 @@ export default class SplitNode extends EventEmitter {
       this.emit('connect', {container, outlet:'split-a'})
     })
 
-    this.outletB = new Outlet(this, 'right', {
+    this.outletB = new OutletUI(this, 'right', {
       offset:{
         x: 0,
         y: 25

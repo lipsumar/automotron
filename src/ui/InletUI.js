@@ -1,12 +1,12 @@
 import Konva from 'konva'
-import BaseLet from './BaseLet';
+import BaseLetUI from './BaseLetUI';
 
-export default class Inlet{
+export default class InletUI{
   constructor(node, side, opts = {}){
     this.node = node
     this.side = side
     this.offset = opts.offset || {x: 0, y:0}
-    Object.assign(this, BaseLet)
+    Object.assign(this, BaseLetUI)
     this.build()
   }
 

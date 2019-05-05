@@ -1,7 +1,7 @@
 import Konva from 'konva'
 import {EventEmitter} from 'events'
 
-export default class Link extends EventEmitter{
+export default class LinkUI extends EventEmitter{
   constructor(opts){
     super()
     this.from = opts.from
@@ -10,7 +10,7 @@ export default class Link extends EventEmitter{
     this.toInlet = opts.toInlet
     this.fromOutlet = opts.fromOutlet
     this.bendy = opts.bendy
-    
+
     this.line = new Konva.Line({
       stroke: opts.color,
       tension: this.bendy ? 0.6 : 0

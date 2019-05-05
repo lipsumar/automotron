@@ -1,26 +1,26 @@
 import Konva from 'konva'
-import {EventEmitter} from 'events'
-import ContainerNode from './ContainerNode'
-import BaseLet from './BaseLet';
-import SplitNode from './SplitNode';
+import { EventEmitter } from 'events';
+import ContainerUI from './ContainerNodeUI';
+import BaseLetUI from './BaseLetUI';
+import SplitNodeUI from './SplitNodeUI';
 
 
-export default class Outlet extends EventEmitter{
-  constructor(node, side, opts = {}){
+export default class OutletUI extends EventEmitter {
+  constructor(node, side, opts = {}) {
     super()
     this.node = node
     this.side = side
     this.outletLine = null
     this.outletDragCurrentlyOnInlet
-    this.offset = opts.offset || {x: 0, y:0}
+    this.offset = opts.offset || { x: 0, y: 0 }
     this.toInlet = opts.toInlet || 'inlet'
     this.bendy = opts.bendy || false
-    Object.assign(this, BaseLet)
+    Object.assign(this, BaseLetUI)
     this.build()
-    
+
   }
 
-  build(){
+  build() {
     this.rect = new Konva.Rect({
       x: this.x(false),
       y: this.y(false),
@@ -61,11 +61,11 @@ export default class Outlet extends EventEmitter{
       }
 
       const points = [ori.x, ori.y,]
-      if(this.bendy){
-        points.push((ori.x+to.x)/2, ((ori.y+to.y)/2)+18)
+      if (this.bendy) {
+        points.push((ori.x + to.x) / 2, ((ori.y + to.y) / 2) + 18)
       }
       points.push(to.x, to.y)
-      
+
       this.outletLine.points(points)
 
 
@@ -79,7 +79,7 @@ export default class Outlet extends EventEmitter{
       }
       let onContainer = null
       this.node.layer.children
-        .filter(c => c._isAutomotronNode && c._id !== this.node.group._id && (c._automotronNode instanceof ContainerNode || c._automotronNode instanceof SplitNode))
+        .filter(c => c._isAutomotronNode && c._id !== this.node.group._id && (c._automotronNode instanceof ContainerUI || c._automotronNode instanceof SplitNodeUI))
         .forEach(g => {
           const container = g._automotronNode
           const inlet = container.getInlet(this.toInlet)
@@ -105,8 +105,8 @@ export default class Outlet extends EventEmitter{
     this.rectHandle.on('dragend', () => {
       this.rectHandle.x(this.x())
       this.rectHandle.y(this.y())
-      
-      if(this.outletDragCurrentlyOnInlet){
+
+      if (this.outletDragCurrentlyOnInlet) {
         this.emit('connect', this.outletDragCurrentlyOnInlet)
       }
 

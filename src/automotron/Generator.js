@@ -1,10 +1,14 @@
 import sample from 'lodash.sample'
 
-export default class Generator{
-  constructor(){
-    this.value = []
+export default class GeneratorNode{
+  constructor(opts){
+    //this.value = []
+    this.setValue(opts.value)
+    this.type = 'generator'
+    this.pos = opts.pos
   }
   setValue(value){
+    this.rawValue = value
     this.value = rawValueToList(value)
   }
   evaluate(agreementValue = null){
