@@ -5,5 +5,16 @@
 </template>
 
 <script>
-export default {};
+import eventBus from "../eventBus.js";
+
+export default {
+  created() {
+    eventBus.$on("newGraph", this.newGraph);
+  },
+  methods: {
+    newGraph() {
+      this.$router.push("/board/new");
+    }
+  }
+};
 </script>

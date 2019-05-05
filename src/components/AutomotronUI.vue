@@ -1,13 +1,43 @@
 <template>
   <div class="automotron-ui">
     <div ref="container"></div>
-    <div id="node-menu">
-      <div class="node-menu__item">list</div>
-      <div class="node-menu__item">split</div>
+    <div
+      id="node-menu"
+      v-if="contextMenu"
+      :style="{top:`${contextMenu.pos.y}px`, left:`${contextMenu.pos.x}px`}"
+    >
+      <div
+        class="node-menu__item"
+        v-for="(op,i) in contextMenuOptions"
+        :key="`op-${i}`"
+        @click="contextMenuChoice(op)"
+      >{{op.type}}: {{op.generator || op.operator}}</div>
     </div>
-    <button class="play" @click="run">run</button>
-    <div id="output" class="open">
-      <div class="output__handle">
+
+    <div
+      id="node-editor"
+      v-if="nodeEdit"
+      :style="{top:`${nodeEdit.pos.y}px`, left:`${nodeEdit.pos.x}px`}"
+    >
+      <textarea
+        v-model="nodeEditValue"
+        @keyup.ctrl.enter="submitNodeEdit"
+        @keyup.alt.enter="submitNodeEdit"
+        @keydown.meta.enter="submitNodeEdit"
+        :style="{width: `${Math.max(nodeEdit.width, 150)}px`,height: `${nodeEdit.height}px`}"
+        ref="textarea"
+      ></textarea>
+    </div>
+
+    <div id="buttons">
+      <button @click="run">run</button>
+      <button @click="newGraph">new</button>
+      <button @click="undo" :disabled="!hasUndo">←</button>
+      <button @click="redo" :disabled="!hasRedo">→</button>
+    </div>
+
+    <div id="output" :class="{open:outputOpen}">
+      <div class="output__handle" @click="outputOpen = !outputOpen">
         <label>output</label>
       </div>
       <div class="output__body">{{outputText}}</div>
@@ -16,37 +46,97 @@
 </template>
 
 <script>
-import AutomotronBoardUI from '../ui/BoardUI.js'
-import AutomotronGraph from '../automotron/Graph.js'
+import AutomotronBoardUI from "../ui/BoardUI.js";
+import AutomotronGraph from "../automotron/Graph.js";
+import eventBus from "../eventBus.js";
+import UndoManager from "../commands/UndoManager.js";
 
 export default {
-  props:{
+  props: {
     state: {
       type: Object,
       required: true
     }
   },
-  mounted(){
-    console.log('Mounted UI', this.state)
-    this.graph = new AutomotronGraph(this.state)
-    this.board = new AutomotronBoardUI({
-      el: this.$refs.container,
-      graph: this.graph,
-      width: window.innerWidth,
-      height: window.innerHeight
-    })
+  mounted() {
+    console.log("Mounted UI", this.state);
+    this.build();
   },
-  data: function(){
+  data: function() {
     return {
-      outputText: ''
+      outputText: "",
+      hasUndo: false,
+      hasRedo: false,
+      nodeEdit: null,
+      nodeEditValue: "",
+      contextMenu: null,
+      contextMenuOptions: [
+        { type: "generator", generator: "list" },
+        { type: "operator", operator: "split" }
+      ],
+      outputOpen: true
+    };
+  },
+  methods: {
+    build() {
+      this.graph = new AutomotronGraph(this.state);
+      this.board = new AutomotronBoardUI({
+        el: this.$refs.container,
+        graph: this.graph,
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+      this.undoManager = new UndoManager(this.graph, this.board);
+      this.undoManager.on("action", () => {
+        this.hasUndo = this.undoManager.hasUndo();
+        this.hasRedo = this.undoManager.hasRedo();
+      });
+      this.board.setUndoManager(this.undoManager);
+      this.board.on("editNode", payload => {
+        this.nodeEdit = payload;
+        this.nodeEditValue = payload.value;
+        this.$nextTick(() => {
+          this.$refs.textarea.focus()
+        })
+      });
+      this.board.on("contextmenu", payload => {
+        this.contextMenu = payload;
+      });
+    },
+    run() {
+      this.graph.run().then(sequence => {
+        this.outputText = sequence.map(i => i.value).join(" ");
+      });
+    },
+    newGraph() {
+      eventBus.$emit("newGraph");
+    },
+    undo() {
+      this.undoManager.undo();
+    },
+    redo() {
+      this.undoManager.redo();
+    },
+    submitNodeEdit() {
+      this.undoManager.execute("setNodeValue", {
+        nodeId: this.nodeEdit.nodeId,
+        value: this.nodeEditValue
+      });
+      this.nodeEdit = null;
+    },
+    contextMenuChoice(option) {
+      this.undoManager.execute("createNode", {
+        ...option,
+        pos: this.contextMenu.createAtPoint,
+        value: '...'
+      });
+      this.contextMenu = null
     }
   },
-  methods:{
-    run(){
-      this.graph.run().then(sequence => {
-        this.outputText = sequence.map(i => i.value).join(' ')
-      })
+  watch: {
+    state(state) {
+      this.build();
     }
   }
-}
+};
 </script>

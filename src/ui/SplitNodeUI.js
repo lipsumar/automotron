@@ -1,9 +1,9 @@
 import Konva from 'konva'
-import { EventEmitter } from 'events'
 import OutletUI from './OutletUI'
 import InletUI from './InletUI'
+import BaseNodeUI from './BaseNodeUI';
 
-export default class SplitNodeUI extends EventEmitter {
+export default class SplitNodeUI extends BaseNodeUI {
   constructor(opts){
     super()
     this.stage = opts.stage
@@ -20,18 +20,7 @@ export default class SplitNodeUI extends EventEmitter {
   }
 
   build(){
-    this.group = new Konva.Group({
-      draggable: true,
-      x: this.pos.x,
-      y: this.pos.y
-    });
-    this.group._isAutomotronNode = true
-    this.group._automotronNode = this
-
-    this.group.on('dragmove', () => {
-      this.emit('move')
-    })
-
+    BaseNodeUI.prototype.build.call(this)
 
     this.rect = new Konva.Rect({
       x: 6,
@@ -60,8 +49,8 @@ export default class SplitNodeUI extends EventEmitter {
         y: -25
       }
     })
-    this.outletA.on('connect', container => {
-      this.emit('connect', {container, outlet:'split-a'})
+    this.outletA.on('connect', uiNode => {
+      this.emit('connect', {uiNode, outlet:'split-a', inlet: 'inlet'})
     })
 
     this.outletB = new OutletUI(this, 'right', {
@@ -70,8 +59,8 @@ export default class SplitNodeUI extends EventEmitter {
         y: 25
       }
     })
-    this.outletB.on('connect', container => {
-      this.emit('connect', {container, outlet:'split-b'})
+    this.outletB.on('connect', uiNode => {
+      this.emit('connect', {uiNode, outlet:'split-b', inlet:'inlet'})
     })
     
   }

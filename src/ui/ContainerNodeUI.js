@@ -1,13 +1,13 @@
 import Konva from 'konva'
-import { EventEmitter } from 'events'
 import OutletUI from './OutletUI'
 import InletUI from './InletUI'
+import BaseNodeUI from './BaseNodeUI';
 
 const padding = 10
 const outletWidth = 6
 const generatorOutletHeight = 6
 
-export default class ContainerNodeUI extends EventEmitter {
+export default class ContainerNodeUI extends BaseNodeUI {
   constructor(opts) {
     super()
     this.stage = opts.stage
@@ -16,7 +16,8 @@ export default class ContainerNodeUI extends EventEmitter {
     this.pos = opts.pos
     this.outletDragCurrentlyOnInlet = null
     this.outletLinks = []
-    this.automotronNode = opts.automotronNode
+    //this.automotronNode = opts.automotronNode
+    this.nodeId = opts.nodeId
     this.isGenerated = false
     this.hasOutlet = {
       top: true,
@@ -30,17 +31,7 @@ export default class ContainerNodeUI extends EventEmitter {
   }
 
   build() {
-    this.group = new Konva.Group({
-      draggable: true,
-      x: this.pos.x,
-      y: this.pos.y
-    });
-    this.group._isAutomotronNode = true
-    this.group._automotronNode = this
-
-    this.group.on('dragmove', () => {
-      this.emit('move')
-    })
+    BaseNodeUI.prototype.build.call(this)
 
     this.text = new Konva.Text({
       x: outletWidth + padding,
@@ -68,8 +59,8 @@ export default class ContainerNodeUI extends EventEmitter {
 
 
     this.outlet = new OutletUI(this, 'right')
-    this.outlet.on('connect', container => {
-      this.emit('connect', {container, inlet: 'inlet', outlet: 'outlet'})
+    this.outlet.on('connect', uiNode => {
+      this.emit('connect', {uiNode, inlet: 'inlet', outlet: 'outlet'})
     })
 
 
@@ -87,8 +78,8 @@ export default class ContainerNodeUI extends EventEmitter {
       toInlet: 'agreement',
       bendy: true
     })
-    this.agreementOutlet.on('connect', container => {
-      this.emit('connect', {container, inlet: 'agreement', outlet: 'agreement', bendy: true})
+    this.agreementOutlet.on('connect', uiNode => {
+      this.emit('connect', {uiNode, inlet: 'agreement', outlet: 'agreement', bendy: true})
     })
 
     this.agreementInlet = new InletUI(this, 'bottom', {
@@ -103,7 +94,7 @@ export default class ContainerNodeUI extends EventEmitter {
 
   setValue(value) {
     this.value = value
-    this.automotronNode.setValue(value)
+    //this.automotronNode.setValue(value)
     this.resize()
   }
 

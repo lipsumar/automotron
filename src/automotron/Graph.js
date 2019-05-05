@@ -23,7 +23,7 @@ export default class AutomotronGraph {
         this.createOperator(node)
       }
 
-      this.nextNodeId = node.id > this.nextNodeId ? node.id : this.nextNodeId
+      this.nextNodeId = node.id >= this.nextNodeId ? node.id+1 : this.nextNodeId
     })
 
     state.links.forEach(link => {
@@ -63,8 +63,21 @@ export default class AutomotronGraph {
     return split
   }
 
+  removeNode(id){
+    const index = this.nodes.findIndex(n => n.id === id)
+    if(index === -1){
+      throw new Error(`Can't remove node #${id}: no such node`)
+    }
+    if(id === this.startContainer.id){
+      throw new Error(`Can't remove start node`)
+    }
+    this.nodes.splice(index, 1)
+  }
+
   createLink(from, to, opts) {
-    this.links.push(new Link({ from, to, fromOutlet: opts.fromOutlet, toInlet: opts.toInlet }))
+    const link = new Link({ from, to, fromOutlet: opts.fromOutlet, toInlet: opts.toInlet })
+    this.links.push(link)
+    return link
   }
 
   removeLink(from, to) {
@@ -73,13 +86,12 @@ export default class AutomotronGraph {
   }
 
   createAgreementLink(from, to) {
-    this.links.push(new Link({ from, to, type: 'agreement' }))
+    const link = new Link({ from, to, type: 'agreement', fromOutlet: 'agreement', toInlet:'agreement' })
+    this.links.push(link)
+    return link
   }
 
-  
-
   run() {
-    console.log(this.links)
     this.sequence = []
     return this.step(this.startContainer)
   }

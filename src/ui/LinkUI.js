@@ -18,9 +18,7 @@ export default class LinkUI extends EventEmitter{
     this.reposition()
 
     this.line.on('dblclick', () => {
-      this.emit('destroy')
-      this.line.destroy()
-      this.layer.draw()
+      this.emit('dblclick')
     })
 
     opts.from.on('move', () => {
@@ -32,8 +30,8 @@ export default class LinkUI extends EventEmitter{
   }
 
   reposition(){
-    const from = this.from.getOutlet(this.fromOutlet).absPos() // this.from.getOutletAttachPos(this.fromOutlet)
-    const to = this.to.getInlet(this.toInlet).absPos()// this.to.getInletAttachPos(this.toInlet)
+    const from = this.from.getOutlet(this.fromOutlet).absPos() 
+    const to = this.to.getInlet(this.toInlet).absPos()
 
     const points = [from.x, from.y]
     if(this.bendy){

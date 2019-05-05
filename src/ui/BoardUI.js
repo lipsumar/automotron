@@ -3,9 +3,11 @@ import ContainerNodeUI from './ContainerNodeUI';
 import GeneratorNodeUI from './GeneratorNodeUI'
 import LinkUI from './LinkUI'
 import SplitNodeUI from './SplitNodeUI';
+import { EventEmitter } from 'events';
 
-export default class BoardUI {
+export default class BoardUI extends EventEmitter {
   constructor(opts) {
+    super()
     this.buildStage(opts)
     this.buildBackgroundLayer()
     this.buildLinkLayer()
@@ -20,13 +22,14 @@ export default class BoardUI {
 
   buildGraph() {
     this.nodesById = {}
+    this.linkByIds = {}
 
     this.graph.nodes.forEach(node => {
       if (node.type === 'container') {
         this.createContainer(node)
       } else if (node.type === 'generator') {
         this.createGenerator(node)
-      } else if(node.type === 'operator'){
+      } else if (node.type === 'operator') {
         this.createOperator(node)
       }
 
@@ -44,11 +47,10 @@ export default class BoardUI {
       layer: this.nodeLayer,
       value: node.value.value,
       pos: node.pos,
-      //automotronNode: ac,
       stroke: this.graph.startContainer.id === node.id ? 'green' : '#999'
     })
-    this.nodeLayer.add(container.group)
-    this.nodesById[node.id] = container
+    
+    this.setupNode(container, node)
   }
 
   createGenerator(node) {
@@ -60,11 +62,10 @@ export default class BoardUI {
       pos: node.pos,
       //automotronNode: ag
     })
-    this.nodeLayer.add(generator.group)
-    this.nodesById[node.id] = generator
+    this.setupNode(generator, node)
   }
 
-  createOperator(node){
+  createOperator(node) {
     console.log('create operatorUI for', node)
     const operator = new SplitNodeUI({
       stage: this.stage,
@@ -72,8 +73,31 @@ export default class BoardUI {
       pos: node.pos,
       //automotronNode: amtSplit
     })
-    this.nodeLayer.add(operator.group)
-    this.nodesById[node.id] = operator
+    this.setupNode(operator, node)
+  }
+
+  setupNode(uiNode, node){
+    uiNode.node = node
+    uiNode.on('move-end', () => {
+      this.undoManager.execute('move', {
+        nodeId: node.id,
+        pos: uiNode.pos
+      })
+    })
+    uiNode.on('connect', payload => {
+      this.undoManager.execute('createLink', {
+        from: {
+          nodeId: node.id,
+          outlet: payload.outlet,
+        },
+        to: {
+          nodeId: payload.uiNode.node.id,
+          inlet: payload.inlet
+        }
+      })
+    })
+    this.nodeLayer.add(uiNode.group)
+    this.nodesById[node.id] = uiNode
   }
 
   createLink(link) {
@@ -92,10 +116,36 @@ export default class BoardUI {
       to: toNodeUI,
       toInlet: link.toInlet,
       fromOutlet: link.fromOutlet,
-      bendy: false, //opts.bendy,
-      color: 'black' //opts.color
+      bendy: link.type === 'agreement',
+      color: link.type === 'agreement' ? 'green' : 'black'
+    })
+    linkUI.on('dblclick', () => {
+      this.undoManager.execute('removeLink', { link })
     })
     this.linkLayer.add(linkUI.line)
+    this.linkByIds[`${link.from.id}:${link.fromOutlet}-${link.to.id}:${link.toInlet}`] = linkUI
+    return linkUI
+  }
+
+  removeNode(id) {
+    this.nodesById[id].group.destroy()
+    delete this.nodesById[id]
+  }
+
+  getNode(id) {
+    return this.nodesById[id]
+  }
+
+  getLink(from, to) {
+    return this.linkByIds[`${from.nodeId}:${from.outlet}-${to.nodeId}:${to.inlet}`]
+  }
+
+  removeLink(linkUI) {
+    if(linkUI.toInlet === "generator"){
+      linkUI.to.setIsGenerated(false)
+    }
+    
+    linkUI.line.destroy()
   }
 
   buildStage(opts) {
@@ -137,6 +187,70 @@ export default class BoardUI {
       stage.batchDraw();
     });
 
+    stage.on('dblclick', e => {
+      e.evt.preventDefault()
+
+      let current = e.target
+      while (!(current instanceof Konva.Stage)) {
+        current = current.getParent()
+        if (current._isAutomotronNode) {
+          //editContainer(current._automotronNode)
+
+          // at first lets find position of text node relative to the stage:
+          var textPosition = current._automotronNode.rect.getAbsolutePosition();
+          // then lets find position of stage container on the page:
+          var stageBox = stage.container().getBoundingClientRect();
+          // so position of textarea will be the sum of positions above:
+          var pos = {
+            x: stageBox.left + textPosition.x,
+            y: stageBox.top + textPosition.y
+          };
+          const node = current._automotronNode.node
+          this.emit('editNode', {
+            pos,
+            width: current._automotronNode.rect.width(),
+            height: current._automotronNode.rect.height(),
+            nodeId: node.id,
+            value: current._automotronNode.value
+          })
+          return
+        }
+      }
+
+
+      const transform = stage.getAbsoluteTransform().copy()
+      transform.invert()
+      const point = transform.point(stage.getPointerPosition())
+
+      //createContainer('...', { pos: point })
+      this.undoManager.execute('createContainer', {
+        pos: point,
+        value: '...'
+      })
+    })
+
+
+    stage.on('contentContextmenu', (e) => {
+      e.evt.preventDefault();
+    })
+    stage.on('click', e => {
+      if (e.evt.button === 2 || e.evt.ctrlKey) { // right click
+
+        const transform = stage.getAbsoluteTransform().copy()
+        transform.invert()
+        const point = transform.point(stage.getPointerPosition())
+
+        //createAtPoint = point
+        //openNodeMenu({ x: e.evt.clientX, y: e.evt.clientY })
+        this.emit('contextmenu', {
+          pos: { x: e.evt.clientX, y: e.evt.clientY },
+          createAtPoint: point
+        })
+        
+      }
+    })
+
+
     this.stage = stage
   }
 
@@ -161,5 +275,9 @@ export default class BoardUI {
   buildNodeLayer() {
     this.nodeLayer = new Konva.Layer();
     this.stage.add(this.nodeLayer)
+  }
+
+  setUndoManager(undoManager) {
+    this.undoManager = undoManager
   }
 }

@@ -5,17 +5,20 @@ body {
   background-color: #f0f0f0;
   font-family: Avenir, sans-serif;
 }
-button{
+#buttons{
   display: block;
-  border: none;
-  padding: 4px 7px;
+  
+  
   position: absolute;
   top:10px;
   left:10px;
 }
+#buttons button{
+  border: none;
+  padding: 4px 7px;
+}
 #node-menu{
   position: absolute;
-  display: none;
   background-color: #fff;
   min-width:150px
 }
@@ -25,6 +28,12 @@ button{
   font-size:1.2em;
   cursor: pointer;
 }
+
+
+#node-editor{
+  position: absolute;
+}
+
 #output{
   position: absolute;
   right:-400px;

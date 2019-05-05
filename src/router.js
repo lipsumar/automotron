@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import AutomotronUI from './components/AutomotronUI.vue'
 import Help from './components/Help.vue'
 import defaultGraph from './data/defaultGraph.json'
+import emptyGraph from './data/emptyGraph.json'
 
 Vue.use(VueRouter)
 
@@ -19,6 +20,13 @@ export default new VueRouter({
     {
       path: '/help',
       component: Help
+    },
+    {
+      path: '/board/new',
+      component: AutomotronUI,
+      props: {
+        state: emptyGraph
+      }
     }
   ]
 })

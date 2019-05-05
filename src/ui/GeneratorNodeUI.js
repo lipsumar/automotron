@@ -1,10 +1,10 @@
 import Konva from 'konva'
-import {EventEmitter} from 'events'
 import OutletUI from './OutletUI';
+import BaseNodeUI from './BaseNodeUI';
 
 
 
-export default class GeneratorNodeUI extends EventEmitter{
+export default class GeneratorNodeUI extends BaseNodeUI{
   constructor(opts){
     super()
     this.pos = opts.pos
@@ -23,22 +23,12 @@ export default class GeneratorNodeUI extends EventEmitter{
   setValue(value){
     value = value.trim()
     this.value = value
-    this.automotronNode.setValue(value)
+    //this.automotronNode.setValue(value)
     this.resize()
   }
 
   build(){
-    this.group = new Konva.Group({
-      draggable: true,
-      x: this.pos.x,
-      y: this.pos.y
-    });
-    this.group._isAutomotronNode = true
-    this.group._automotronNode = this
-
-    this.group.on('dragmove', () => {
-      this.emit('move')
-    })
+    BaseNodeUI.prototype.build.call(this)
 
     this.rect = new Konva.Rect({
       x: 0,
@@ -73,8 +63,8 @@ export default class GeneratorNodeUI extends EventEmitter{
     })
   
     this.outlet = new OutletUI(this, 'bottom', {toInlet:'generator'})
-    this.outlet.on('connect', container => {
-      this.emit('connect', {container, toInlet:'generator'})
+    this.outlet.on('connect', uiNode => {
+      this.emit('connect', {uiNode, inlet:'generator', outlet: 'outlet'})
     })
 
     this.group.add(this.rect)
@@ -82,10 +72,6 @@ export default class GeneratorNodeUI extends EventEmitter{
     this.group.add(headerText)
     this.group.add(this.text)
     
-  }
-
-  addLink(){
-
   }
 
   getOutletAttachPos(){
