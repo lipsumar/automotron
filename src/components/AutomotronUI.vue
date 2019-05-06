@@ -42,7 +42,7 @@
       <div class="output__handle" @click="outputOpen = !outputOpen">
         <label>output</label>
       </div>
-      <div class="output__body">{{outputText}}</div>
+      <div class="output__body" v-html="outputText.split('\\n').join('<br>')"></div>
     </div>
   </div>
 </template>
@@ -74,7 +74,8 @@ export default {
       contextMenu: null,
       contextMenuOptions: [
         { type: "generator", generator: "list" },
-        { type: "operator", operator: "split" }
+        { type: "operator", operator: "split" },
+        { type: "operator", operator: "loop" },
       ],
       outputOpen: true
     };
