@@ -1,15 +1,21 @@
 import sample from 'lodash.sample'
+import Node from './Node';
 
-export default class GeneratorNode{
+export default class GeneratorNode extends Node{
   constructor(opts){
-    //this.value = []
+    super(opts)
     this.setValue(opts.value)
     this.type = 'generator'
-    this.pos = opts.pos
   }
   setValue(value){
-    this.rawValue = value
-    this.value = rawValueToList(value)
+    if(typeof value === 'string'){
+      this.rawValue = value
+      this.value = rawValueToList(value)
+    }else{
+      this.value = value
+      this.rawValue = value.map(v => v.value).join('\n')
+    }
+    
   }
   evaluate(agreementValue = null){
     if(!agreementValue){
@@ -24,12 +30,17 @@ export default class GeneratorNode{
     }
     if(chosen.agreed){
       // need to choose the right agree
-      
       const match = getMatchingAgreed(chosen.agreed, agreementValue)
       evaluatedValue.value = match.finalValue
       evaluatedValue.agreement = match.finalAgreement
     }
     return Promise.resolve(evaluatedValue)
+  }
+
+  normalize(){
+    const norm = Node.prototype.normalize.call(this)
+    norm.generator = 'list'
+    return norm
   }
 
 }

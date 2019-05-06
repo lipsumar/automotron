@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import AutomotronUI from './components/AutomotronUI.vue'
 import Help from './components/Help.vue'
-import defaultGraph from './data/defaultGraph.json'
-import emptyGraph from './data/emptyGraph.json'
+import Homepage from './components/Homepage.vue'
+import Editor from './components/Editor.vue'
+import graphStoreService from './services/GraphStoreService'
 
 Vue.use(VueRouter)
 
@@ -12,21 +12,22 @@ export default new VueRouter({
   routes: [
     {
       path: '/',
-      component: AutomotronUI,
-      props: {
-        state: defaultGraph
-      }
+      component: Homepage
     },
     {
       path: '/help',
       component: Help
     },
     {
-      path: '/board/new',
-      component: AutomotronUI,
-      props: {
-        state: emptyGraph
+      path: '/generator/new',
+      redirect: () => {
+        return `/generator/${graphStoreService.getFreeId()}`
       }
+    },
+    {
+      path: '/generator/:generatorId',
+      component: Editor,
+      props: true
     }
   ]
 })

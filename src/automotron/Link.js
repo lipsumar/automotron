@@ -6,4 +6,17 @@ export default class Link{
     this.fromOutlet = opts.fromOutlet
     this.toInlet = opts.toInlet
   }
+
+  normalize(){
+    return {
+      from: {
+        nodeId: this.from.id,
+        outlet: this.fromOutlet
+      },
+      to:{
+        nodeId: this.to.id,
+        inlet: this.toInlet
+      }
+    }
+  }
 }

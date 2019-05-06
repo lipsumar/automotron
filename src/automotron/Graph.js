@@ -162,4 +162,12 @@ export default class AutomotronGraph {
   setStartContainer(container) {
     this.startContainer = container
   }
+
+  normalize(){
+    return {
+      nodes: this.nodes.map(n => n.normalize()),
+      links: this.links.map(l => l.normalize()),
+      startNodeId: this.startContainer.id
+    }
+  }
 }

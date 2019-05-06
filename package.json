@@ -12,9 +12,13 @@
   "dependencies": {
     "konva": "^3.2.5",
     "lodash.sample": "^4.2.1",
+    "uniqid": "^5.0.3",
     "vue": "^2.6.10",
     "vue-hot-reload-api": "^2.3.3",
-    "vue-router": "^3.0.6"
+    "vue-modal-dialogs": "^3.0.0",
+    "vue-router": "^3.0.6",
+    "vue-toasted": "^1.1.26",
+    "vuex": "^3.1.0"
   },
   "devDependencies": {
     "@vue/component-compiler-utils": "^3.0.0",

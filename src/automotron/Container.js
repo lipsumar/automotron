@@ -1,8 +1,10 @@
-export default class ContainerNode {
+import Node from "./Node";
+
+export default class ContainerNode extends Node {
   constructor(opts) {
+    super(opts)
     this.evaluatedValue = null
     this.setValue(opts.value)
-    this.pos = opts.pos
     this.type = 'container'
   }
 

@@ -30,8 +30,10 @@
     </div>
 
     <div id="buttons">
+      <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
-      <button @click="newGraph">new</button>
+      <button @click="$router.push('/generator/new')">new</button>
+      <button @click="$emit('save', graph.normalize())">save</button>
       <button @click="undo" :disabled="!hasUndo">←</button>
       <button @click="redo" :disabled="!hasRedo">→</button>
     </div>
@@ -107,9 +109,6 @@ export default {
       this.graph.run().then(sequence => {
         this.outputText = sequence.map(i => i.value).join(" ");
       });
-    },
-    newGraph() {
-      eventBus.$emit("newGraph");
     },
     undo() {
       this.undoManager.undo();
