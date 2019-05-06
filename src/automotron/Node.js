@@ -11,4 +11,5 @@ export default class Node{
       pos: this.pos
     }
   }
+  reset(){}
 }

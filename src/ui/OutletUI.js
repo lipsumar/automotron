@@ -1,8 +1,7 @@
 import Konva from 'konva'
 import { EventEmitter } from 'events';
-import ContainerNodeUI from './ContainerNodeUI';
 import BaseLetUI from './BaseLetUI';
-import SplitNodeUI from './SplitNodeUI';
+import BaseNodeUI from './BaseNodeUI';
 
 
 export default class OutletUI extends EventEmitter {
@@ -80,7 +79,7 @@ export default class OutletUI extends EventEmitter {
       //console.log('movingRect', movingRect)
       let onContainer = null
       this.node.layer.children
-        .filter(c => c._isAutomotronNode && c._id !== this.node.group._id && (c._automotronNode instanceof ContainerNodeUI || c._automotronNode instanceof SplitNodeUI))
+        .filter(c => c._isAutomotronNode && c._id !== this.node.group._id && c._automotronNode instanceof BaseNodeUI && c._automotronNode.getInlet)
         .forEach(g => {
           const container = g._automotronNode
           const inlet = container.getInlet(this.toInlet)

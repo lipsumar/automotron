@@ -3,6 +3,8 @@ import Link from "./Link";
 import sample from 'lodash.sample'
 import Generator from "./Generator";
 import Split from './Split'
+import Loop from "./Loop";
+import Operator from "./Operator";
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -57,10 +59,16 @@ export default class AutomotronGraph {
   }
 
   createOperator(opts) {
-    const split = new Split(opts)
-    split.id = opts.id || this.nextNodeId++
-    this.nodes.push(split)
-    return split
+    let operator;
+    if(opts.operator === 'split'){
+      operator = new Split(opts)
+    } else if(opts.operator=== 'loop'){
+      operator = new Loop(opts)
+    }
+    
+    operator.id = opts.id || this.nextNodeId++
+    this.nodes.push(operator)
+    return operator
   }
 
   removeNode(id){
@@ -93,6 +101,8 @@ export default class AutomotronGraph {
 
   run() {
     this.sequence = []
+    this.comeBackTo = null
+    this.nodes.forEach(n => n.reset())
     return this.step(this.startContainer)
   }
 
@@ -119,7 +129,7 @@ export default class AutomotronGraph {
 
   evaluateContainer(container) {
 
-    if (container instanceof Split) {
+    if (container instanceof Operator) {
       return Promise.resolve(null)
     }
 
@@ -136,10 +146,11 @@ export default class AutomotronGraph {
 
   pickNextContainer(container) {
     let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id)
-    if (links.length === 0) return null
+    if (links.length === 0) return this.comeBackTo || null
 
-    if (container instanceof Split) {
-      const nextOutlet = container.evaluateNextOutlet()
+    if (container instanceof Operator) {
+      const {nextOutlet, comeBackTo} = container.evaluateNextOutlet()
+      this.comeBackTo = comeBackTo
       console.log('===>', nextOutlet, links)
       links = links.filter(l => l.fromOutlet === nextOutlet)
     }

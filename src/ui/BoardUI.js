@@ -4,6 +4,7 @@ import GeneratorNodeUI from './GeneratorNodeUI'
 import LinkUI from './LinkUI'
 import SplitNodeUI from './SplitNodeUI';
 import { EventEmitter } from 'events';
+import LoopNodeUI from './LoopNodeUI';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -67,12 +68,23 @@ export default class BoardUI extends EventEmitter {
 
   createOperator(node) {
     console.log('create operatorUI for', node)
-    const operator = new SplitNodeUI({
-      stage: this.stage,
-      layer: this.nodeLayer,
-      pos: node.pos,
-      //automotronNode: amtSplit
-    })
+    let operator;
+    if(node.operator === 'split'){
+      operator = new SplitNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        pos: node.pos,
+        //automotronNode: amtSplit
+      })
+    } else if(node.operator==='loop'){
+      operator = new LoopNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        pos: node.pos,
+        value: node.value
+      })
+    }
+    
     this.setupNode(operator, node)
   }
 

@@ -1,18 +1,19 @@
 import sample from 'lodash.sample'
-import Node from './Node';
+import Operator from './Operator';
 
-export default class Split extends Node{
+export default class Split extends Operator{
   constructor(opts){
     super(opts)
     this.type = 'operator'
+    this.operator = 'split'
   }
 
   evaluateNextOutlet(){
-    return sample(['split-a', 'split-b'])
+    return {nextOutlet: sample(['split-a', 'split-b'])}
   }
 
   normalize(){
-    const norm = Node.prototype.normalize.call(this)
+    const norm = Operator.prototype.normalize.call(this)
     norm.operator = 'split'
     return norm
   }
