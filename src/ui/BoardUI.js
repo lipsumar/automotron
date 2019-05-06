@@ -173,7 +173,7 @@ export default class BoardUI extends EventEmitter {
       y: opts.height / 2
     })
 
-    var scaleBy = 1.01;
+    var scaleBy = 1.05;
     stage.on('wheel', e => {
       e.evt.preventDefault();
       var oldScale = stage.scaleX();
@@ -184,7 +184,7 @@ export default class BoardUI extends EventEmitter {
       };
 
       var newScale =
-        e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+        e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
       stage.scale({ x: newScale, y: newScale });
 
       var newPos = {
