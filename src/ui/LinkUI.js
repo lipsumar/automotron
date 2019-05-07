@@ -70,6 +70,10 @@ export default class LinkUI extends EventEmitter{
       if(toInlet.side==='left'){
         points.push(to.x-5, to.y)
       }
+
+      if(toInlet.side==='top'){
+        points.push(to.x, to.y-5)
+      }
       
     }
 
