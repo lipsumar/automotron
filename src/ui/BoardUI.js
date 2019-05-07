@@ -1,10 +1,11 @@
 import Konva from 'konva'
 import ContainerNodeUI from './ContainerNodeUI';
-import GeneratorNodeUI from './GeneratorNodeUI'
+import ListNodeUI from './ListNodeUI'
 import LinkUI from './LinkUI'
 import SplitNodeUI from './SplitNodeUI';
 import { EventEmitter } from 'events';
 import LoopNodeUI from './LoopNodeUI';
+import MacroNodeUI from './MacroNodeUI';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -56,13 +57,23 @@ export default class BoardUI extends EventEmitter {
 
   createGenerator(node) {
     console.log('create generatorUI for', node)
-    const generator = new GeneratorNodeUI({
-      stage: this.stage,
-      layer: this.nodeLayer,
-      value: node.rawValue,
-      pos: node.pos,
-      //automotronNode: ag
-    })
+    let generator;
+    if(node.generator === 'list'){
+      generator = new ListNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.rawValue,
+        pos: node.pos,
+      })
+    } else if(node.generator==='macro'){
+      generator = new MacroNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.rawValue,
+        pos: node.pos,
+      })
+    }
+    
     this.setupNode(generator, node)
   }
 

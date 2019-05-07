@@ -4,7 +4,7 @@ import BaseNodeUI from './BaseNodeUI';
 
 
 
-export default class GeneratorNodeUI extends BaseNodeUI{
+export default class ListNodeUI extends BaseNodeUI{
   constructor(opts){
     super()
     this.pos = opts.pos

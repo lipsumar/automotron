@@ -5,6 +5,8 @@ import Generator from "./Generator";
 import Split from './Split'
 import Loop from "./Loop";
 import Operator from "./Operator";
+import List from "./List";
+import Macro from "./Macro";
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -57,10 +59,16 @@ export default class AutomotronGraph {
   }
 
   createGenerator(opts) {
-    const g = new Generator(opts)
-    g.id = opts.id || this.nextNodeId++
-    this.nodes.push(g)
-    return g
+    let generator;
+    if(opts.generator === 'list'){
+      generator = new List(opts)
+    }else if(opts.generator === 'macro'){
+      generator = new Macro({...opts, graph:this})
+    }
+    
+    generator.id = opts.id || this.nextNodeId++
+    this.nodes.push(generator)
+    return generator
   }
 
   createOperator(opts) {
@@ -108,16 +116,23 @@ export default class AutomotronGraph {
     this.sequence = []
     this.comeBackTo = null
     this.nodes.forEach(n => n.reset())
+    this.stepsCount = 0
     return this.step(this.startContainer)
   }
 
   step(container) {
     // eslint-disable-next-line no-console
     console.log('STEP', container)
+    this.stepsCount++
+
+    if(this.stepsCount>1000){
+      console.log('inifnite loop')
+      return
+    }
 
     return this.evaluateContainer(container)
       .then(evaluatedValue => {
-        if (evaluatedValue !== null) {
+        if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
           console.log('SET', container, evaluatedValue)
           this.sequence.push(evaluatedValue)
@@ -140,7 +155,7 @@ export default class AutomotronGraph {
 
     const generator = this.getContainerGenerator(container)
     if (generator) {
-
+      console.log('using generator instead=>', generator)
       const agreementContainer = this.getAgreementContainer(container)
       console.log('agreement =>', agreementContainer)
       return generator.evaluate(agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null)
@@ -150,7 +165,7 @@ export default class AutomotronGraph {
   }
 
   pickNextContainer(container) {
-    let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id)
+    let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet==='inlet')
     if (links.length === 0) return this.comeBackTo || null
 
     if (container instanceof Operator) {
@@ -164,7 +179,7 @@ export default class AutomotronGraph {
   }
 
   getContainerGenerator(container) {
-    const links = this.links.filter(l => l.to.id === container.id && l.from instanceof Generator)
+    const links = this.links.filter(l => l.to.id === container.id && l.from instanceof Generator && l.toInlet==='generator')
     if (links.length === 0) return null
     return sample(links).from
   }

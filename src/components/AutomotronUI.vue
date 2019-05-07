@@ -74,6 +74,7 @@ export default {
       contextMenu: null,
       contextMenuOptions: [
         { type: "generator", generator: "list" },
+        { type: "generator", generator: "macro" },
         { type: "operator", operator: "split" },
         { type: "operator", operator: "loop" },
       ],
@@ -108,6 +109,7 @@ export default {
     },
     run() {
       this.graph.run().then(sequence => {
+        console.log('OUTPUT SEQUENCE', sequence)
         this.outputText = sequence.map(i => i.value).join(" ");
       });
     },
