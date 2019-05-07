@@ -8,10 +8,14 @@ export default class Macro extends Generator{
     this.graph = opts.graph
   }
 
-  evaluate(){
+  evaluate(agreementContainer = null){
     const next = this.graph.pickNextContainer(this)
     console.log('NEXT would be', next)
-    return this.graph.step(next)
+    const mySeq = []
+    return this.graph.step(next, agreementContainer, mySeq).then(seq => {
+      console.log('Macro end=>', mySeq)
+      return seq
+    })
   }
 
   normalize(){

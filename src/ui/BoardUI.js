@@ -6,6 +6,7 @@ import SplitNodeUI from './SplitNodeUI';
 import { EventEmitter } from 'events';
 import LoopNodeUI from './LoopNodeUI';
 import MacroNodeUI from './MacroNodeUI';
+import ProxyNodeUI from './ProxyNodeUI';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -67,6 +68,13 @@ export default class BoardUI extends EventEmitter {
       })
     } else if(node.generator==='macro'){
       generator = new MacroNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.rawValue,
+        pos: node.pos,
+      })
+    } else if (node.generator === 'proxy'){
+      generator = new ProxyNodeUI({
         stage: this.stage,
         layer: this.nodeLayer,
         value: node.rawValue,

@@ -75,6 +75,7 @@ export default {
       contextMenuOptions: [
         { type: "generator", generator: "list" },
         { type: "generator", generator: "macro" },
+        { type: "generator", generator: "proxy" },
         { type: "operator", operator: "split" },
         { type: "operator", operator: "loop" },
       ],

@@ -7,6 +7,7 @@ import Loop from "./Loop";
 import Operator from "./Operator";
 import List from "./List";
 import Macro from "./Macro";
+import Proxy from "./Proxy";
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -64,6 +65,8 @@ export default class AutomotronGraph {
       generator = new List(opts)
     }else if(opts.generator === 'macro'){
       generator = new Macro({...opts, graph:this})
+    } else if(opts.generator === 'proxy'){
+      generator = new Proxy({...opts, graph:this})
     }
     
     generator.id = opts.id || this.nextNodeId++
@@ -117,10 +120,11 @@ export default class AutomotronGraph {
     this.comeBackTo = null
     this.nodes.forEach(n => n.reset())
     this.stepsCount = 0
+    this.previousNode = null
     return this.step(this.startContainer)
   }
 
-  step(container) {
+  step(container, forceAgreementContainer=null, seq = null) {
     // eslint-disable-next-line no-console
     console.log('STEP', container)
     this.stepsCount++
@@ -130,24 +134,33 @@ export default class AutomotronGraph {
       return
     }
 
-    return this.evaluateContainer(container)
+    return this.evaluateContainer(container, forceAgreementContainer)
       .then(evaluatedValue => {
         if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
           console.log('SET', container, evaluatedValue)
           this.sequence.push(evaluatedValue)
+          if(seq) seq.push(evaluatedValue)
+        }
+        if(evaluatedValue instanceof Array){
+          const joined = evaluatedValue.map(v => v.value).join(' ')
+          console.log('SET', joined)
+          container.setEvaluatedValue({
+            value: joined
+          })
         }
 
+        this.previousNode = container
 
         const nextContainer = this.pickNextContainer(container)
         if (nextContainer) {
-          return this.step(nextContainer)
+          return this.step(nextContainer, null, seq)
         }
-        return this.sequence
+        return seq || this.sequence
       })
   }
 
-  evaluateContainer(container) {
+  evaluateContainer(container, forceAgreementContainer = null) {
 
     if (container instanceof Operator) {
       return Promise.resolve(null)
@@ -156,9 +169,10 @@ export default class AutomotronGraph {
     const generator = this.getContainerGenerator(container)
     if (generator) {
       console.log('using generator instead=>', generator)
-      const agreementContainer = this.getAgreementContainer(container)
-      console.log('agreement =>', agreementContainer)
-      return generator.evaluate(agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null)
+      const agreementContainer = forceAgreementContainer || this.getAgreementContainer(container)
+      console.log('agreement =>', 'forced?'+(forceAgreementContainer?'yes':'no'))
+      //return generator.evaluate(agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null, this.previousNode)
+      return generator.evaluate(agreementContainer || null, this.previousNode)
     }
 
     return container.evaluate()

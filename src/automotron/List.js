@@ -19,17 +19,18 @@ export default class List extends Generator{
     }
     
   }
-  evaluate(agreementValue = null){
+  evaluate(agreementContainer = null){
+    const agreementValue = agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null
     if(!agreementValue){
       return Promise.resolve(sample(this.value))
     }
-    
+
     const possible = this.value.filter(onlyAgreeable.bind(null, agreementValue))
     const chosen = sample(possible)
     const evaluatedValue = {
       value: chosen.value,
       agreement: agreementValue.agreement
-    }
+    }    
     if(chosen.agreed){
       // need to choose the right agree
       const match = getMatchingAgreed(chosen.agreed, agreementValue)
@@ -116,14 +117,35 @@ function makeAgreement(str, agreement) {
     }
 
     if (words.length === 2) {
-      if (!agreement.m) {
+      
+      if(agreement.m && !agreement.f){
+        return {
+          ms: words[0],
+          fs: null,
+          mp: words[1],
+          fp: null
+        }
+      }
+
+      if(agreement.f && !agreement.m){
         return {
           ms: null,
           fs: words[0],
           mp: null,
           fp: words[1]
         }
-      } else if (!agreement.p){
+      }
+
+      if(agreement.p && !agreement.s){
+        return {
+          ms: null,
+          fs: null,
+          mp: words[0],
+          fp: words[1]
+        }
+      }
+
+      if(agreement.s && !agreement.p){
         return {
           ms: words[0],
           fs: words[1],
