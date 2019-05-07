@@ -104,8 +104,8 @@ export default class OutletUI extends EventEmitter {
     })
 
     this.rectHandle.on('dragend', () => {
-      this.rectHandle.x(this.x())
-      this.rectHandle.y(this.y())
+      this.rectHandle.x(this.x(false))
+      this.rectHandle.y(this.y(false))
 
       if (this.outletDragCurrentlyOnInlet) {
         this.emit('connect', this.outletDragCurrentlyOnInlet)
