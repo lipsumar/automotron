@@ -68,8 +68,8 @@ export default {
     this.rect.x(this.x(false))
     this.rect.y(this.y(false))
     if (this.rectHandle) {
-      this.rectHandle.x(this.x(false))
-      this.rectHandle.y(this.y(false))
+      this.rectHandle.x(this.handleX(false))
+      this.rectHandle.y(this.handleY(false))
     }
 
   }

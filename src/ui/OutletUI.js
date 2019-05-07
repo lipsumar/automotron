@@ -29,10 +29,10 @@ export default class OutletUI extends EventEmitter {
     })
 
     this.rectHandle = new Konva.Rect({
-      x: this.x(false),
-      y: this.y(false),
-      width: this.width(),
-      height: this.height(),
+      x: this.handleX(false),
+      y: this.handleY(false),
+      width: this.handleWidth(),
+      height: this.handleHeight(),
       fill: 'transparent',
       draggable: true
     })
@@ -104,8 +104,8 @@ export default class OutletUI extends EventEmitter {
     })
 
     this.rectHandle.on('dragend', () => {
-      this.rectHandle.x(this.x(false))
-      this.rectHandle.y(this.y(false))
+      this.rectHandle.x(this.handleX(false))
+      this.rectHandle.y(this.handleY(false))
 
       if (this.outletDragCurrentlyOnInlet) {
         this.emit('connect', this.outletDragCurrentlyOnInlet)
@@ -119,6 +119,18 @@ export default class OutletUI extends EventEmitter {
     this.node.group.add(this.rectHandle)
   }
 
+  handleX(){
+    return this.x(false) - 4
+  }
+  handleY(){
+    return this.y(false) - 4
+  }
+  handleWidth(){
+    return this.width() + 8
+  }
+  handleHeight(){
+    return this.height() + 8
+  }
 }
 
 
