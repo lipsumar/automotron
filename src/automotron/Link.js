@@ -16,7 +16,8 @@ export default class Link{
       to:{
         nodeId: this.to.id,
         inlet: this.toInlet
-      }
+      },
+      type: this.type
     }
   }
 }

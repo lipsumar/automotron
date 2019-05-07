@@ -31,10 +31,15 @@ export default class AutomotronGraph {
     state.links.forEach(link => {
       const from = this.getNode(link.from.nodeId)
       const to = this.getNode(link.to.nodeId)
-      this.createLink(from, to, {
-        fromOutlet: link.from.outlet,
-        toInlet: link.to.inlet
-      })
+      if(link.type === 'agreement'){
+        this.createAgreementLink(from, to)
+      }else{
+        this.createLink(from, to, {
+          fromOutlet: link.from.outlet,
+          toInlet: link.to.inlet
+        })
+      }
+      
     })
 
     this.setStartContainer(this.getNode(state.startNodeId))
