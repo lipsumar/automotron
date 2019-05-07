@@ -4,7 +4,7 @@ import Generator from './Generator';
 export default class List extends Generator{
   constructor(opts){
     super(opts)
-    this.setValue(opts.value)
+    this.setValue(opts.rawValue)
     this.type = 'generator'
     this.generator = 'list'
   }
@@ -13,8 +13,9 @@ export default class List extends Generator{
       this.rawValue = value
       this.value = rawValueToList(value)
     }else{
+      throw new Error('eh la bas')
       this.value = value
-      this.rawValue = value.map(v => v.value).join('\n')
+      //this.rawValue = value.map(v => v.value).join('\n')
     }
     
   }
@@ -41,6 +42,7 @@ export default class List extends Generator{
   normalize(){
     const norm = Generator.prototype.normalize.call(this)
     norm.generator = 'list'
+    norm.rawValue = this.rawValue
     return norm
   }
 
@@ -120,6 +122,13 @@ function makeAgreement(str, agreement) {
           fs: words[0],
           mp: null,
           fp: words[1]
+        }
+      } else if (!agreement.p){
+        return {
+          ms: words[0],
+          fs: words[1],
+          mp: null,
+          fp: null
         }
       }
     }

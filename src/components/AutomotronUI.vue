@@ -130,7 +130,8 @@ export default {
       this.undoManager.execute("createNode", {
         ...option,
         pos: this.contextMenu.createAtPoint,
-        value: '...'
+        value: '...',
+        rawValue: '...'
       });
       this.contextMenu = null
     }
