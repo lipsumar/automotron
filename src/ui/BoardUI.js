@@ -311,4 +311,13 @@ export default class BoardUI extends EventEmitter {
   setUndoManager(undoManager) {
     this.undoManager = undoManager
   }
+
+  getState(){
+    return {
+      stage: {
+        pos: this.stage.position(),
+        scale: this.stage.scale()
+      }
+    }
+  }
 }

@@ -33,7 +33,7 @@
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
       <button @click="$router.push('/generator/new')">new</button>
-      <button @click="$emit('save', graph.normalize())">save</button>
+      <button @click="$emit('save', {graph: graph.normalize(), board: board.getState()})">save</button>
       <button @click="undo" :disabled="!hasUndo">←</button>
       <button @click="redo" :disabled="!hasRedo">→</button>
     </div>
@@ -84,13 +84,18 @@ export default {
   },
   methods: {
     build() {
-      this.graph = new AutomotronGraph(this.state);
+      this.graph = new AutomotronGraph(this.state.graph);
       this.board = new AutomotronBoardUI({
         el: this.$refs.container,
         graph: this.graph,
         width: window.innerWidth,
         height: window.innerHeight
       });
+      
+      this.board.stage.position(this.state.board.stage.pos)
+      this.board.stage.scale(this.state.board.stage.scale)
+      this.board.stage.draw()
+    
       this.undoManager = new UndoManager(this.graph, this.board);
       this.undoManager.on("action", () => {
         this.hasUndo = this.undoManager.hasUndo();
