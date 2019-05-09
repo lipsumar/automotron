@@ -57,7 +57,7 @@ export default new Vuex.Store({
       ctx.commit('editorGraphStartFetch')
       graphStoreService.fetchGraph(payload.id).then(graph => {
         if(!graph){
-          graph = emptyGraph
+          graph = {graph: emptyGraph}
         }
         ctx.commit('editorGraphDoneFetch', {graph})
       })

@@ -91,10 +91,11 @@ export default {
         width: window.innerWidth,
         height: window.innerHeight
       });
-      
-      this.board.stage.position(this.state.board.stage.pos)
-      this.board.stage.scale(this.state.board.stage.scale)
-      this.board.stage.draw()
+      if(this.state.board){
+        this.board.stage.position(this.state.board.stage.pos)
+        this.board.stage.scale(this.state.board.stage.scale)
+        this.board.stage.draw()
+      }
     
       this.undoManager = new UndoManager(this.graph, this.board);
       this.undoManager.on("action", () => {
