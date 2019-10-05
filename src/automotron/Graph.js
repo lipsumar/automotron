@@ -115,13 +115,37 @@ export default class AutomotronGraph {
     return link
   }
 
-  run() {
+  reset(){
     this.sequence = []
     this.comeBackTo = null
     this.nodes.forEach(n => n.reset())
     this.stepsCount = 0
     this.previousNode = null
+  }
+
+  run() {
+    this.reset()
     return this.step(this.startContainer)
+  }
+
+  run2(){
+    /*this.sequence = []
+    this.comeBackTo = null
+    this.nodes.forEach(n => n.reset())
+    this.stepsCount = 0
+    this.previousNode = null
+
+    let nextContainer = this.startContainer;
+    
+    const oneStep = () => {
+      this.step2(nextContainer, null, ).then(res => {
+        if(res.nextContainer){
+          nextContainer = res.nextContainer
+        }
+      })
+    }
+
+    oneStep()*/
   }
 
   step(container, forceAgreementContainer=null, seq = null) {
@@ -157,6 +181,30 @@ export default class AutomotronGraph {
           return this.step(nextContainer, null, seq)
         }
         return seq || this.sequence
+      })
+  }
+
+  step2(container, forceAgreementContainer = null, seq = null){
+    return this.evaluateContainer(container, forceAgreementContainer)
+      .then(evaluatedValue => {
+        if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
+          container.setEvaluatedValue(evaluatedValue)
+          console.log('SET', container, evaluatedValue)
+          this.sequence.push(evaluatedValue)
+          if(seq) seq.push(evaluatedValue)
+        }
+        if(evaluatedValue instanceof Array){
+          const joined = evaluatedValue.map(v => v.value).join(' ')
+          console.log('SET', joined)
+          container.setEvaluatedValue({
+            value: joined
+          })
+        }
+
+        this.previousNode = container
+
+        const nextContainer = this.pickNextContainer(container)
+        return { nextContainer, seq, evaluatedValue }
       })
   }
 
