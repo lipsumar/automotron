@@ -6,8 +6,7 @@ export default class Loop extends Operator{
     this.type = 'operator'
     this.operator = 'loop'
     this.reset()
-    this.maxCount = 4
-    this.value = this.maxCount
+    this.setValue(opts.value || 4)
   }
 
   setValue(value){
