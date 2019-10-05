@@ -4,7 +4,7 @@ import Generator from './Generator';
 export default class List extends Generator{
   constructor(opts){
     super(opts)
-    this.setValue(opts.rawValue)
+    this.setValue(opts.rawValue || '...')
     this.type = 'generator'
     this.generator = 'list'
   }
