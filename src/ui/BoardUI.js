@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 import LoopNodeUI from './LoopNodeUI';
 import MacroNodeUI from './MacroNodeUI';
 import ProxyNodeUI from './ProxyNodeUI';
+import TagNodeUI from './TagNodeUI';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -98,6 +99,13 @@ export default class BoardUI extends EventEmitter {
       })
     } else if(node.operator==='loop'){
       operator = new LoopNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        pos: node.pos,
+        value: node.value
+      })
+    } else if(node.operator === 'tag'){
+      operator = new TagNodeUI({
         stage: this.stage,
         layer: this.nodeLayer,
         pos: node.pos,

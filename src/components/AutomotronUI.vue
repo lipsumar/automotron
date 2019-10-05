@@ -78,6 +78,7 @@ export default {
         { type: "generator", generator: "proxy" },
         { type: "operator", operator: "split" },
         { type: "operator", operator: "loop" },
+        { type: "operator", operator: "tag" },
       ],
       outputOpen: true
     };

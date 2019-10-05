@@ -8,6 +8,7 @@ import Operator from "./Operator";
 import List from "./List";
 import Macro from "./Macro";
 import Proxy from "./Proxy";
+import Tag from './Tag';
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -80,6 +81,8 @@ export default class AutomotronGraph {
       operator = new Split(opts)
     } else if(opts.operator=== 'loop'){
       operator = new Loop(opts)
+    } else if(opts.operator === 'tag'){
+      operator = new Tag(opts)
     }
     
     operator.id = opts.id || this.nextNodeId++
