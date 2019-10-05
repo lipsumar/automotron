@@ -5,7 +5,7 @@ export default class Split extends Operator{
     super(opts)
     this.type = 'operator'
     this.operator = 'split'
-    this.value = opts.value
+    this.value = opts.value || 50
   }
 
   setValue(value){
