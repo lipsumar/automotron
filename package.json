@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "parcel index.html",
     "test": "echo \"Error: no test specified\" && exit 1",
     "spark-compil": "webpack-cli --entry ./compile-lib/entry-spark.js --output dist/spark.js --mode none"
   },
@@ -13,6 +14,7 @@
   "dependencies": {
     "konva": "^3.2.5",
     "lodash.sample": "^4.2.1",
+    "parcel": "^1.12.3",
     "uniqid": "^5.0.3",
     "vue": "^2.6.10",
     "vue-hot-reload-api": "^2.3.3",
