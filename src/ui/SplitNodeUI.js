@@ -10,6 +10,7 @@ export default class SplitNodeUI extends BaseNodeUI {
     this.layer = opts.layer
     this.pos = opts.pos
     this.automotronNode = opts.automotronNode
+    this.value = opts.value
     this.hasOutlet = {
       top: false,
       bottom: false,
@@ -34,7 +35,7 @@ export default class SplitNodeUI extends BaseNodeUI {
       x: 6,
       y: 0,
       width: 50,
-      height: 60,
+      height: this.getPcHeight(),
       fill: '#002984'
     })
 
@@ -63,6 +64,16 @@ export default class SplitNodeUI extends BaseNodeUI {
       this.emit('connect', {uiNode, outlet:'split-b', inlet:'inlet'})
     })
     
+  }
+
+  getPcHeight(){
+    return 120 - this.value * 1.2;
+  }
+
+  setValue(value){
+    this.value = parseInt(value, 10);
+    this.pcRect.height(this.getPcHeight())
+    this.emit('move');
   }
 
   getInlet(){

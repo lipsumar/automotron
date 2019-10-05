@@ -93,6 +93,7 @@ export default class BoardUI extends EventEmitter {
         stage: this.stage,
         layer: this.nodeLayer,
         pos: node.pos,
+        value: node.value,
         //automotronNode: amtSplit
       })
     } else if(node.operator==='loop'){

@@ -1,4 +1,3 @@
-import sample from 'lodash.sample'
 import Operator from './Operator';
 
 export default class Split extends Operator{
@@ -6,10 +5,16 @@ export default class Split extends Operator{
     super(opts)
     this.type = 'operator'
     this.operator = 'split'
+    this.value = opts.value
+  }
+
+  setValue(value){
+    this.value = parseInt(value, 10);
   }
 
   evaluateNextOutlet(){
-    return {nextOutlet: sample(['split-a', 'split-b'])}
+    const nextOutlet = Math.random()*100 > this.value ? 'split-a' : 'split-b'; 
+    return { nextOutlet }
   }
 
   normalize(){
