@@ -42,7 +42,11 @@
       <div class="output__handle" @click="outputOpen = !outputOpen">
         <label>output</label>
       </div>
-      <div class="output__body" v-html="outputText.split('\\n').join('<br>')"></div>
+      <div class="output__body">
+        <p v-html="outputText.split('\\n').join('<br>')"></p>
+        <hr/>
+        <p v-html="outputTextFixed.split('\\n').join('<br>')"></p>
+      </div>
     </div>
   </div>
 </template>
@@ -52,6 +56,7 @@ import AutomotronBoardUI from "../ui/BoardUI.js";
 import AutomotronGraph from "../automotron/Graph.js";
 import eventBus from "../eventBus.js";
 import UndoManager from "../commands/UndoManager.js";
+import frenchFixer from "../services/FrenchFixer"
 
 export default {
   props: {
@@ -79,6 +84,7 @@ export default {
         { type: "operator", operator: "split" },
         { type: "operator", operator: "loop" },
         { type: "operator", operator: "tag" },
+        { type: "operator", operator: "logic" },
       ],
       outputOpen: true
     };
@@ -142,6 +148,11 @@ export default {
         //rawValue: '...'
       });
       this.contextMenu = null
+    }
+  },
+  computed:{
+    outputTextFixed(){
+      return frenchFixer(this.outputText)
     }
   },
   watch: {
