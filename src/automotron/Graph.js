@@ -9,6 +9,7 @@ import List from "./List";
 import Macro from "./Macro";
 import Proxy from "./Proxy";
 import Tag from './Tag';
+import Logic from './Logic';
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -83,6 +84,8 @@ export default class AutomotronGraph {
       operator = new Loop(opts)
     } else if(opts.operator === 'tag'){
       operator = new Tag(opts)
+    } else if(opts.operator === 'logic'){
+      operator = new Logic(opts)
     }
     
     operator.id = opts.id || this.nextNodeId++
@@ -234,15 +237,18 @@ export default class AutomotronGraph {
     if (links.length === 0) return this.comeBackTo || null
 
     if (container instanceof Operator) {
-      const {nextOutlet, comeBackTo} = container.evaluateNextOutlet()
+      const {nextOutlet, comeBackTo} = container.evaluateNextOutlet(this.sequence)
       if(typeof comeBackTo !== 'undefined') {
-      this.comeBackTo = comeBackTo
+        this.comeBackTo = comeBackTo
       }
       
       console.log('===>', nextOutlet, links)
       links = links.filter(l => l.fromOutlet === nextOutlet)
     }
 
+    if(container.pickNextLink){
+      return container.pickNextLink(links).to
+    }
     return sample(links).to
   }
 
