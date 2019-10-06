@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server/",
+    "start": "node server/fake.js",
     "dev": "parcel index.html",
     "dev-server": "nodemon server/ --watch server",
     "test": "echo \"Error: no test specified\" && exit 1",
