@@ -57,13 +57,23 @@ export default class TagNodeUI extends BaseNodeUI {
     this.group.add(this.text)
 
 
-    this.outlet = new OutletUI(this, 'right')
+    this.outlet = new OutletUI(this, 'right', {
+      offset:{
+        x: 0,
+        y: 5
+      }
+    })
     this.outlet.on('connect', uiNode => {
       this.emit('connect', {uiNode, inlet: 'inlet', outlet: 'outlet'})
     })
 
 
-    this.inlet = new InletUI(this, 'left')
+    this.inlet = new InletUI(this, 'left', {
+      offset:{
+        x: 0,
+        y: 5
+      }
+    })
 
 
     this.resize()
