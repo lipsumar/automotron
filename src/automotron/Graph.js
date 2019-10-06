@@ -235,7 +235,10 @@ export default class AutomotronGraph {
 
     if (container instanceof Operator) {
       const {nextOutlet, comeBackTo} = container.evaluateNextOutlet()
+      if(typeof comeBackTo !== 'undefined') {
       this.comeBackTo = comeBackTo
+      }
+      
       console.log('===>', nextOutlet, links)
       links = links.filter(l => l.fromOutlet === nextOutlet)
     }
