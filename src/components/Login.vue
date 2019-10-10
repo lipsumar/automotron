@@ -16,8 +16,8 @@
 export default {
   data: function(){
     return {
-      username: 'lipsumar',
-      password: 'password'
+      username: '',
+      password: ''
     }
   },
   methods:{
