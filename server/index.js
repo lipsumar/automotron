@@ -7,7 +7,7 @@ const expressSession = require('express-session');
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/dev', {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true, 
   useUnifiedTopology: true
 });
@@ -146,8 +146,9 @@ db.once('open', () => {
     }
   )
   
-  app.listen(3000);
-  console.log('Listening on http://localhost:3000')
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT);
+  console.log(`Listening on http://localhost:${PORT}`)
   
 
 })
