@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import graphStoreService from './services/GraphStoreService';
 import emptyGraph from './data/emptyGraph.json'
+import api from './api'
 
 Vue.use(Vuex)
 
@@ -20,7 +21,8 @@ export default new Vuex.Store({
       loading: false,
       error: false,
       data: null
-    }
+    },
+    user: null
   },
   mutations:{
     editorGraphStartFetch(state){
@@ -50,28 +52,37 @@ export default new Vuex.Store({
       state.generatorList.loading = false
       state.generatorList.error = payload.error || false
       state.generatorList.data = payload.data || null
+    },
+    loggedIn(state, payload){
+      state.user = payload
     }
   },
   actions:{
     loadEditorGraph(ctx, payload){
       ctx.commit('editorGraphStartFetch')
-      graphStoreService.fetchGraph(payload.id).then(graph => {
-        if(!graph){
-          graph = {graph: emptyGraph}
-        }
+      api.getGraph(payload.id).then(graph => {
         ctx.commit('editorGraphDoneFetch', {graph})
+      }).catch(error => {
+        ctx.commit('editorGraphDoneFetch', {error})
       })
     },
     saveEditorGraph(ctx, payload){
       ctx.commit('saveEditorGraphStart')
-      graphStoreService.saveGraph(payload.id, payload.graph).then(() => {
+      api.saveGraph(payload.id, payload.graphData, payload.graphData.name).then(() => {
         ctx.commit('saveEditorGraphSuccess')
       })
     },
     fetchGeneratorList(ctx){
-      //ctx.commit('generatorListStartFetch')
-      ctx.commit('generatorListDoneFetch', {
-        data: graphStoreService.getList()
+      ctx.commit('generatorListStartFetch');
+      api.getGraphList().then(graphs => {
+        ctx.commit('generatorListDoneFetch', {
+          data: graphs
+        })
+      })      
+    },
+    newEditorGraph(ctx){
+      ctx.commit('editorGraphDoneFetch', {
+        graph: {graph: emptyGraph}
       })
     }
   }

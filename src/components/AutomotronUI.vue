@@ -29,7 +29,7 @@
       ></textarea>
     </div>
 
-    <div id="buttons">
+    <div id="buttons" v-if="user">
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
       <button @click="$router.push('/generator/new')">new</button>
@@ -153,6 +153,9 @@ export default {
   computed:{
     outputTextFixed(){
       return frenchFixer(this.outputText)
+    },
+    user(){
+      return this.$store.state.user
     }
   },
   watch: {

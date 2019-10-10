@@ -3,7 +3,7 @@ const shortid = require('shortid');
 
 const GraphSchema = new mongoose.Schema({
   _id: String,
-  graph: String,
+  graphData: String,
   userId: String,
   name: String
 }, {_id: false});
