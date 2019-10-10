@@ -50,10 +50,13 @@ export default class LinkUI extends EventEmitter{
 
       if(fromOutlet.side==='right'){
         points.push(from.x+10, from.y)
+        this.line.strokeWidth(3)
       }
 
       if(fromOutlet.side==='bottom'){
         points.push(from.x, from.y+10)
+        //this.line.dash([5, 5])
+        this.line.stroke('#aaa')
       }
       
       if(fromOutlet.side === 'right' && toInlet.side === 'left' && from.x>to.x){
