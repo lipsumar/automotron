@@ -15,6 +15,8 @@ const User = require('./models/user');
 const Graph = require('./models/graph');
 const app = express();
 
+app.use(express.static('./public/'))
+
 const db = mongoose.connection;
 db.once('open', () => {
 

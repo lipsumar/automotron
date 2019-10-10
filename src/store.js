@@ -82,7 +82,7 @@ export default new Vuex.Store({
     },
     newEditorGraph(ctx){
       ctx.commit('editorGraphDoneFetch', {
-        graph: {graph: emptyGraph}
+        graph: {graphData: emptyGraph}
       })
     }
   }

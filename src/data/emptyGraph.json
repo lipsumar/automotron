@@ -1,15 +1,17 @@
 {
-  "nodes": [
-    {
-      "id": 1,
-      "type": "container",
-      "value": "Start",
-      "pos": {
-        "x": -200,
-        "y": 0
+  "graph": {
+    "nodes": [
+      {
+        "id": 1,
+        "type": "container",
+        "value": "Start",
+        "pos": {
+          "x": -200,
+          "y": 0
+        }
       }
-    }
-  ],
-  "links": [],
-  "startNodeId": 1
+    ],
+    "links": [],
+    "startNodeId": 1
+  }
 }

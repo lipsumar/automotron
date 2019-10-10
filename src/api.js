@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const ax = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: window.location.href.includes('localhost') ? 'http://localhost:3000' : '',
   withCredentials: true
 })
 

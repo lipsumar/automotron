@@ -5,7 +5,7 @@
     </div>
     <div class="generator-list">
       <router-link :to="`/login`" class="generator-list__item">Login</router-link>
-      <router-link :to="`/generator/new`" class="generator-list__item" v-if="user">New generator</router-link>
+      <router-link :to="`/graph`" class="generator-list__item" v-if="user">New generator</router-link>
       <hr>
       <div v-if="user">
         <router-link
