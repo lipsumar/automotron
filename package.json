@@ -7,7 +7,7 @@
     "start": "node server/index.js",
     "dev": "parcel index.html",
     "dev-server": "nodemon server/ --watch server",
-    "build": "parcel build index.html -d ~/dev/lipsumar.io/automotron/public/ && cp -r ./server ~/dev/lipsumar.io/automotron/ && cp package.json ~/dev/lipsumar.io/automotron/",
+    "build": "parcel build index.html -d ~/dev/lipsumar.io/automotron/public/ --no-minify && cp -r ./server ~/dev/lipsumar.io/automotron/ && cp package.json ~/dev/lipsumar.io/automotron/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "spark-compil": "webpack-cli --entry ./compile-lib/entry-spark.js --output dist/spark.js --mode none"
   },
