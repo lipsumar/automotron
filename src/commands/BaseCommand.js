@@ -6,6 +6,7 @@ export default class BaseCommand extends EventEmitter{
     this.graph = graph
     this.ui = ui
     this.opts = opts
+    this.addToStack = true;
   }
 
   redo(){

@@ -127,10 +127,29 @@ export default class BoardUI extends EventEmitter {
   setupNode(uiNode, node){
     uiNode.node = node
     uiNode.on('move-end', () => {
-      this.undoManager.execute('move', {
+      
+      let nodeMoved = [{
         nodeId: node.id,
         pos: uiNode.pos
+      }];
+      if(uiNode.selected){
+        nodeMoved = this.getSelectedNodes().map(uin => {
+          return {
+            nodeId: uin.node.id,
+            pos: uin.pos
+          }
+        })
+      }
+
+      this.undoManager.execute('move', {
+        moves: nodeMoved
       })
+      
+      // reset group drag stuff
+      this.getSelectedNodes().forEach(node => {
+        node.posBeforeMove = null
+      })
+      uiNode.movedWith = null
     })
     uiNode.on('connect', payload => {
       this.undoManager.execute('createLink', {
@@ -144,6 +163,34 @@ export default class BoardUI extends EventEmitter {
         }
       })
     })
+    uiNode.on('click', (payload) => {
+      this.undoManager.execute('select', {
+        nodeId: node.id,
+        shift: payload.shift
+      })
+    })
+
+    uiNode.on('move', (originatesFromUser) => {
+      if(originatesFromUser && uiNode.selected){
+        const moveDelta = {
+          x: uiNode.pos.x - uiNode.dragStartedAt.x,
+          y: uiNode.pos.y - uiNode.dragStartedAt.y,
+        }
+        // move other selected nodes
+        const otherNodes = this.getSelectedNodes().filter(n => n.node.id !== node.id)
+        otherNodes.forEach(otherNode => {
+          if(!otherNode.posBeforeMove){
+            otherNode.posBeforeMove = {...otherNode.pos}
+          }
+          const otherPos = {
+            x: otherNode.posBeforeMove.x + moveDelta.x,
+            y: otherNode.posBeforeMove.y + moveDelta.y
+          }
+          otherNode.move(otherPos)
+        })
+      }
+    })
+
     this.nodeLayer.add(uiNode.group)
     this.nodesById[node.id] = uiNode
   }
@@ -182,6 +229,14 @@ export default class BoardUI extends EventEmitter {
 
   getNode(id) {
     return this.nodesById[id]
+  }
+
+  getNodes(){
+    return Object.keys(this.nodesById).map(nodeId => this.nodesById[nodeId])
+  }
+
+  getSelectedNodes(){
+    return this.getNodes().filter(node => node.selected)
   }
 
   getLink(from, to) {
@@ -295,6 +350,8 @@ export default class BoardUI extends EventEmitter {
           createAtPoint: point
         })
         
+      } else { // normal click
+        this.undoManager.execute('select', {nodeId: null})
       }
     })
 

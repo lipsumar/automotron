@@ -15,6 +15,7 @@ export default class ProxyNodeUI extends BaseNodeUI{
       bottom: true,
       right: true
     }
+    this.defaultStroke = '#6a0080'
     this.build()
   }
 
@@ -29,7 +30,7 @@ export default class ProxyNodeUI extends BaseNodeUI{
       width: 70,
       height: 40,
       fill: '#9c27b0',
-      stroke: '#6a0080'
+      stroke: this.defaultStroke
     })
 
     this.text = new Konva.Text({
