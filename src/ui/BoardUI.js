@@ -29,6 +29,7 @@ export default class BoardUI extends EventEmitter {
 
     document.addEventListener('copy', this.onCopy.bind(this))
     document.addEventListener('paste', this.onPaste.bind(this))
+    document.addEventListener('keyup', this.onKeyup.bind(this)) 
   }
 
   buildGraph(graph) {
@@ -496,6 +497,12 @@ export default class BoardUI extends EventEmitter {
       alert('can’t paste this')
     }
     
+  }
+
+  onKeyup(e){
+    if(e.key === 'Backspace'){
+      this.undoManager.execute('removeNodes', {nodes:this.getSelectedNodes()})
+    }
   }
 }
 
