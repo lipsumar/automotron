@@ -16,6 +16,7 @@ export default class BaseNodeUI extends EventEmitter{
     this.group.on('dragstart', e => {
       if(e.target._id !== this.group._id) return
       this.dragStartedAt = this.group.position()
+      this.emit('move-start');
     })
 
     this.group.on('dragmove', (e) => {

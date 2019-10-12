@@ -13,6 +13,7 @@ import LogicNodeUI from './LogicNodeUI.js';
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
     super()
+    this.moving = false
     this.buildStage(opts)
     this.buildBackgroundLayer()
     this.buildLinkLayer()
@@ -126,8 +127,11 @@ export default class BoardUI extends EventEmitter {
 
   setupNode(uiNode, node){
     uiNode.node = node
+    uiNode.on('move-start', () => {
+      this.moving = true
+    })
     uiNode.on('move-end', () => {
-      
+      this.moving = false
       let nodeMoved = [{
         nodeId: node.id,
         pos: uiNode.pos
@@ -146,7 +150,7 @@ export default class BoardUI extends EventEmitter {
       })
       
       // reset group drag stuff
-      this.getSelectedNodes().forEach(node => {
+      this.getNodes().forEach(node => {
         node.posBeforeMove = null
       })
       uiNode.movedWith = null
@@ -252,6 +256,8 @@ export default class BoardUI extends EventEmitter {
   }
 
   buildStage(opts) {
+    let drawingSelectZone = false
+
     const stage = new Konva.Stage({
       container: opts.el,
       width: opts.width,
@@ -351,7 +357,66 @@ export default class BoardUI extends EventEmitter {
         })
         
       } else { // normal click
-        this.undoManager.execute('select', {nodeId: null})
+        
+        //this.undoManager.execute('select', {nodeId: null})
+      }
+    })
+
+    
+    stage.on('mousedown', e => {
+      if(e.evt.shiftKey){
+        const transform = stage.getAbsoluteTransform().copy()
+        transform.invert()
+        const point = transform.point(stage.getPointerPosition())
+        
+        drawingSelectZone = new Konva.Rect({
+          x: point.x,
+          y: point.y,
+          width: 0,
+          height: 0,
+          fill: 'rgba(167,196,247, 0.3)'
+        })
+        this.nodeLayer.add(drawingSelectZone)
+
+        stage.draggable(false);
+      }
+    })
+    stage.on('mouseup', () => {
+      if(drawingSelectZone){
+        stage.draggable(true)
+        drawingSelectZone.destroy()
+        drawingSelectZone = false
+        stage.draw()
+      } else {
+        if(!this.moving){
+          this.undoManager.execute('select', {nodeId: null})
+        }
+        
+      }
+    })
+    stage.on('mousemove', e => {
+      if(drawingSelectZone){
+        const transform = stage.getAbsoluteTransform().copy()
+        transform.invert()
+        const point = transform.point(stage.getPointerPosition())
+
+        drawingSelectZone.width(
+          point.x - drawingSelectZone.x()
+        )
+        drawingSelectZone.height(
+          point.y - drawingSelectZone.y()
+        )
+
+        const sel = drawingSelectZone.getClientRect()
+
+        this.getNodes().forEach(uiNode => {
+          if(intersect(sel,uiNode.rect.getClientRect())){
+            uiNode.setSelected(true)
+          }else{
+            uiNode.setSelected(false)
+          }
+        })
+        stage.draw()
       }
     })
 
@@ -394,4 +459,13 @@ export default class BoardUI extends EventEmitter {
       }
     }
   }
+}
+
+function intersect(r1, r2) {
+  return !(
+    r2.x > r1.x + r1.width ||
+    r2.x + r2.width < r1.x ||
+    r2.y > r1.y + r1.height ||
+    r2.y + r2.height < r1.y
+  );
 }
