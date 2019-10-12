@@ -18,6 +18,7 @@ export default class AutomotronGraph {
     this.links = []
     this.startContainer = null
     this.buildState(state)
+    this.setStartContainer(this.getNode(state.startNodeId))
   }
 
   buildState(state) {
@@ -46,8 +47,10 @@ export default class AutomotronGraph {
       }
       
     })
+  }
 
-    this.setStartContainer(this.getNode(state.startNodeId))
+  getNewNodeId(){
+    return this.nextNodeId++
   }
 
   getNode(id) {
@@ -56,7 +59,7 @@ export default class AutomotronGraph {
 
   createContainer(opts) {
     const c = new Container(opts)
-    c.id = opts.id || this.nextNodeId++
+    c.id = opts.id || this.getNewNodeId()
     this.nodes.push(c)
     return c
   }
@@ -71,7 +74,7 @@ export default class AutomotronGraph {
       generator = new Proxy({...opts, graph:this})
     }
     
-    generator.id = opts.id || this.nextNodeId++
+    generator.id = opts.id || this.getNewNodeId()
     this.nodes.push(generator)
     return generator
   }
@@ -88,7 +91,7 @@ export default class AutomotronGraph {
       operator = new Logic(opts)
     }
     
-    operator.id = opts.id || this.nextNodeId++
+    operator.id = opts.id || this.getNewNodeId()
     this.nodes.push(operator)
     return operator
   }

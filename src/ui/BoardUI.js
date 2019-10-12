@@ -21,16 +21,20 @@ export default class BoardUI extends EventEmitter {
 
     this.graph = opts.graph
 
-    this.buildGraph()
-
-    this.stage.draw()
-  }
-
-  buildGraph() {
     this.nodesById = {}
     this.linkByIds = {}
+    this.buildGraph(this.graph)
 
-    this.graph.nodes.forEach(node => {
+    this.stage.draw()
+
+    document.addEventListener('copy', this.onCopy.bind(this))
+    document.addEventListener('paste', this.onPaste.bind(this))
+  }
+
+  buildGraph(graph) {
+
+
+    graph.nodes.forEach(node => {
       if (node.type === 'container') {
         this.createContainer(node)
       } else if (node.type === 'generator') {
@@ -41,7 +45,7 @@ export default class BoardUI extends EventEmitter {
 
     })
 
-    this.graph.links.forEach(link => {
+    graph.links.forEach(link => {
       this.createLink(link)
     })
   }
@@ -458,6 +462,40 @@ export default class BoardUI extends EventEmitter {
         scale: this.stage.scale()
       }
     }
+  }
+
+  onCopy(e){
+    const uiNodes = this.getSelectedNodes();
+    const nodes = uiNodes.map(uiNode => uiNode.node.normalize())
+    const nodeIds = nodes.map(n => n.id)
+    const links = this.graph.links.reduce((acc, link) => {
+      if(nodeIds.includes(link.from.id) && nodeIds.includes(link.to.id)){
+        acc.push(link.normalize())
+      }
+      return acc
+    }, []) 
+    const data = { nodes, links }
+    console.log('-> COPY', data)
+    e.clipboardData.setData('text/plain', JSON.stringify(data));
+    e.preventDefault();
+  }
+
+  onPaste(e){
+    const paste = (event.clipboardData || window.clipboardData).getData('text');
+    let data = null;
+    try{
+      data = JSON.parse(paste);
+    }catch(err){
+      console.log('parse error', err)
+    }
+
+    if(data && data.nodes && data.links){
+      console.log('-> PASTE', data)
+      this.undoManager.execute('paste', { data })
+    } else {
+      alert('can’t paste this')
+    }
+    
   }
 }
 
