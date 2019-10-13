@@ -14,6 +14,7 @@ export default class BoardUI extends EventEmitter {
   constructor(opts) {
     super()
     this.moving = false
+    this.editing = false
     this.buildStage(opts)
     this.buildBackgroundLayer()
     this.buildLinkLayer()
@@ -320,6 +321,7 @@ export default class BoardUI extends EventEmitter {
             y: stageBox.top + textPosition.y
           };
           const node = current._automotronNode.node
+          this.editing = true
           this.emit('editNode', {
             pos,
             width: current._automotronNode.rect.width(),
@@ -500,6 +502,7 @@ export default class BoardUI extends EventEmitter {
   }
 
   onKeyup(e){
+    if(this.editing) return
     if(e.key === 'Backspace'){
       this.undoManager.execute('removeNodes', {nodes:this.getSelectedNodes()})
     }

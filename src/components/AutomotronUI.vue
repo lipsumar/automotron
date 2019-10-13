@@ -139,6 +139,7 @@ export default {
         value: this.nodeEditValue
       });
       this.nodeEdit = null;
+      this.board.editing = false
     },
     contextMenuChoice(option) {
       this.undoManager.execute("createNode", {
