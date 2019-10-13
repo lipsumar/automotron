@@ -5,25 +5,47 @@ export default class Loop extends Operator{
     super(opts)
     this.type = 'operator'
     this.operator = 'loop'
+    this.graph = opts.graph
     this.reset()
     this.setValue(opts.value || 4)
   }
 
   setValue(value){
-    this.value = value
-    this.maxCount = value 
+    this.value = parseInt(value, 10)
+    this.maxCount = this.value 
   }
 
   reset(){
     this.loopCount = 0
+    this.all = []
+  }
+
+  evaluate(){
+    this.reset();
+    return this.loop()
+  }
+  setEvaluatedValue(){}
+
+  loop(){
+    console.log('    loop '+this.loopCount)
+    const next = this.graph.pickNextContainer(this)
+    return this.graph.recursiveSteps(next).then(seq => {
+      this.all.push(...seq)
+      this.loopCount++
+      if(this.loopCount === this.maxCount){
+        return this.all
+      }
+      return this.loop()
+    })
   }
 
   evaluateNextOutlet(){
     if(this.loopCount < this.maxCount){
-      this.loopCount++
-      return {nextOutlet: 'outlet', comeBackTo: this}
+      // this.loopCount++
+      return {nextOutlet: 'outlet'}
     }
-    return {nextOutlet: 'then', comeBackTo: null}
+    return {nextOutlet: 'then'}
+    
   }
 
   normalize(){

@@ -20,9 +20,13 @@ export default class List extends Generator{
     
   }
   evaluate(agreementContainer = null){
+    console.log('    ->List')
     const agreementValue = agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null
+    console.log('  ',{agreementValue: JSON.stringify(agreementValue)})
     if(!agreementValue){
-      return Promise.resolve(sample(this.value))
+      const evaluatedValue = sample(this.value)
+      console.log('    =>',{evaluatedValue: JSON.stringify(evaluatedValue)})
+      return Promise.resolve(evaluatedValue)
     }
 
     const possible = this.value.filter(onlyAgreeable.bind(null, agreementValue))
@@ -37,6 +41,7 @@ export default class List extends Generator{
       evaluatedValue.value = match.finalValue
       evaluatedValue.agreement = match.finalAgreement
     }
+    console.log('    =>',{evaluatedValue: JSON.stringify(evaluatedValue)})
     return Promise.resolve(evaluatedValue)
   }
 
