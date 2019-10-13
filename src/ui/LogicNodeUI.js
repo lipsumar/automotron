@@ -21,6 +21,7 @@ export default class LogicNodeUI extends BaseNodeUI {
       left: true,
       right: true
     }
+    this.defaultStroke = this.stroke;
     this.build()
   }
 

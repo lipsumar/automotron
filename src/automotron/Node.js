@@ -12,4 +12,8 @@ export default class Node{
     }
   }
   reset(){}
+
+  toString(){
+    return `#${this.id}[${this.type}] ${this.value.value}`
+  }
 }

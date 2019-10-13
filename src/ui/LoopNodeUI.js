@@ -17,6 +17,7 @@ export default class LoopNodeUI extends BaseNodeUI {
       left: true,
       right: true
     }
+    this.defaultStroke = '#3f51b5';
     this.build()
   }
 

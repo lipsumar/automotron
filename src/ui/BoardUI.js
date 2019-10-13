@@ -13,6 +13,8 @@ import LogicNodeUI from './LogicNodeUI.js';
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
     super()
+    this.moving = false
+    this.editing = false
     this.buildStage(opts)
     this.buildBackgroundLayer()
     this.buildLinkLayer()
@@ -20,16 +22,21 @@ export default class BoardUI extends EventEmitter {
 
     this.graph = opts.graph
 
-    this.buildGraph()
-
-    this.stage.draw()
-  }
-
-  buildGraph() {
     this.nodesById = {}
     this.linkByIds = {}
+    this.buildGraph(this.graph)
 
-    this.graph.nodes.forEach(node => {
+    this.stage.draw()
+
+    document.addEventListener('copy', this.onCopy.bind(this))
+    document.addEventListener('paste', this.onPaste.bind(this))
+    document.addEventListener('keyup', this.onKeyup.bind(this)) 
+  }
+
+  buildGraph(graph) {
+
+
+    graph.nodes.forEach(node => {
       if (node.type === 'container') {
         this.createContainer(node)
       } else if (node.type === 'generator') {
@@ -40,7 +47,7 @@ export default class BoardUI extends EventEmitter {
 
     })
 
-    this.graph.links.forEach(link => {
+    graph.links.forEach(link => {
       this.createLink(link)
     })
   }
@@ -126,11 +133,33 @@ export default class BoardUI extends EventEmitter {
 
   setupNode(uiNode, node){
     uiNode.node = node
+    uiNode.on('move-start', () => {
+      this.moving = true
+    })
     uiNode.on('move-end', () => {
-      this.undoManager.execute('move', {
+      this.moving = false
+      let nodeMoved = [{
         nodeId: node.id,
         pos: uiNode.pos
+      }];
+      if(uiNode.selected){
+        nodeMoved = this.getSelectedNodes().map(uin => {
+          return {
+            nodeId: uin.node.id,
+            pos: uin.pos
+          }
+        })
+      }
+
+      this.undoManager.execute('move', {
+        moves: nodeMoved
       })
+      
+      // reset group drag stuff
+      this.getNodes().forEach(node => {
+        node.posBeforeMove = null
+      })
+      uiNode.movedWith = null
     })
     uiNode.on('connect', payload => {
       this.undoManager.execute('createLink', {
@@ -144,6 +173,34 @@ export default class BoardUI extends EventEmitter {
         }
       })
     })
+    uiNode.on('click', (payload) => {
+      this.undoManager.execute('select', {
+        nodeId: node.id,
+        shift: payload.shift
+      })
+    })
+
+    uiNode.on('move', (originatesFromUser) => {
+      if(originatesFromUser && uiNode.selected){
+        const moveDelta = {
+          x: uiNode.pos.x - uiNode.dragStartedAt.x,
+          y: uiNode.pos.y - uiNode.dragStartedAt.y,
+        }
+        // move other selected nodes
+        const otherNodes = this.getSelectedNodes().filter(n => n.node.id !== node.id)
+        otherNodes.forEach(otherNode => {
+          if(!otherNode.posBeforeMove){
+            otherNode.posBeforeMove = {...otherNode.pos}
+          }
+          const otherPos = {
+            x: otherNode.posBeforeMove.x + moveDelta.x,
+            y: otherNode.posBeforeMove.y + moveDelta.y
+          }
+          otherNode.move(otherPos)
+        })
+      }
+    })
+
     this.nodeLayer.add(uiNode.group)
     this.nodesById[node.id] = uiNode
   }
@@ -184,6 +241,14 @@ export default class BoardUI extends EventEmitter {
     return this.nodesById[id]
   }
 
+  getNodes(){
+    return Object.keys(this.nodesById).map(nodeId => this.nodesById[nodeId])
+  }
+
+  getSelectedNodes(){
+    return this.getNodes().filter(node => node.selected)
+  }
+
   getLink(from, to) {
     return this.linkByIds[`${from.nodeId}:${from.outlet}-${to.nodeId}:${to.inlet}`]
   }
@@ -197,6 +262,8 @@ export default class BoardUI extends EventEmitter {
   }
 
   buildStage(opts) {
+    let drawingSelectZone = false
+
     const stage = new Konva.Stage({
       container: opts.el,
       width: opts.width,
@@ -254,6 +321,7 @@ export default class BoardUI extends EventEmitter {
             y: stageBox.top + textPosition.y
           };
           const node = current._automotronNode.node
+          this.editing = true
           this.emit('editNode', {
             pos,
             width: current._automotronNode.rect.width(),
@@ -295,6 +363,67 @@ export default class BoardUI extends EventEmitter {
           createAtPoint: point
         })
         
+      } else { // normal click
+        
+        //this.undoManager.execute('select', {nodeId: null})
+      }
+    })
+
+    
+    stage.on('mousedown', e => {
+      if(e.evt.shiftKey){
+        const transform = stage.getAbsoluteTransform().copy()
+        transform.invert()
+        const point = transform.point(stage.getPointerPosition())
+        
+        drawingSelectZone = new Konva.Rect({
+          x: point.x,
+          y: point.y,
+          width: 0,
+          height: 0,
+          fill: 'rgba(167,196,247, 0.3)'
+        })
+        this.nodeLayer.add(drawingSelectZone)
+
+        stage.draggable(false);
+      }
+    })
+    stage.on('mouseup', () => {
+      if(drawingSelectZone){
+        stage.draggable(true)
+        drawingSelectZone.destroy()
+        drawingSelectZone = false
+        stage.draw()
+      } else {
+        if(!this.moving){
+          this.undoManager.execute('select', {nodeId: null})
+        }
+        
+      }
+    })
+    stage.on('mousemove', e => {
+      if(drawingSelectZone){
+        const transform = stage.getAbsoluteTransform().copy()
+        transform.invert()
+        const point = transform.point(stage.getPointerPosition())
+
+        drawingSelectZone.width(
+          point.x - drawingSelectZone.x()
+        )
+        drawingSelectZone.height(
+          point.y - drawingSelectZone.y()
+        )
+
+        const sel = drawingSelectZone.getClientRect()
+
+        this.getNodes().forEach(uiNode => {
+          if(intersect(sel,uiNode.rect.getClientRect())){
+            uiNode.setSelected(true)
+          }else{
+            uiNode.setSelected(false)
+          }
+        })
+        stage.draw()
       }
     })
 
@@ -337,4 +466,54 @@ export default class BoardUI extends EventEmitter {
       }
     }
   }
+
+  onCopy(e){
+    const uiNodes = this.getSelectedNodes();
+    const nodes = uiNodes.map(uiNode => uiNode.node.normalize())
+    const nodeIds = nodes.map(n => n.id)
+    const links = this.graph.links.reduce((acc, link) => {
+      if(nodeIds.includes(link.from.id) && nodeIds.includes(link.to.id)){
+        acc.push(link.normalize())
+      }
+      return acc
+    }, []) 
+    const data = { nodes, links }
+    console.log('-> COPY', data)
+    e.clipboardData.setData('text/plain', JSON.stringify(data));
+    e.preventDefault();
+  }
+
+  onPaste(e){
+    const paste = (event.clipboardData || window.clipboardData).getData('text');
+    let data = null;
+    try{
+      data = JSON.parse(paste);
+    }catch(err){
+      console.log('parse error', err)
+    }
+
+    if(data && data.nodes && data.links){
+      console.log('-> PASTE', data)
+      this.undoManager.execute('paste', { data })
+    } else {
+      alert('can’t paste this')
+    }
+    
+  }
+
+  onKeyup(e){
+    if(this.editing) return
+    if(e.key === 'Backspace'){
+      this.undoManager.execute('removeNodes', {nodes:this.getSelectedNodes()})
+    }
+  }
+}
+
+function intersect(r1, r2) {
+  return !(
+    r2.x > r1.x + r1.width ||
+    r2.x + r2.width < r1.x ||
+    r2.y > r1.y + r1.height ||
+    r2.y + r2.height < r1.y
+  );
 }

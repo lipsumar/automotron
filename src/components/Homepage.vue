@@ -4,13 +4,17 @@
       <h1 class="hero__title">Automotron</h1>
     </div>
     <div class="generator-list">
-      <router-link :to="`/generator/new`" class="generator-list__item">New generator</router-link>
-      <router-link
-        :to="`/generator/${g.id}`"
-        class="generator-list__item"
-        v-for="g in generators"
-        :key="g.id"
-      >{{g.name}}</router-link>
+      <router-link :to="`/login`" class="generator-list__item">Login</router-link>
+      <router-link :to="`/graph`" class="generator-list__item" v-if="user">New generator</router-link>
+      <hr>
+      <div v-if="user">
+        <router-link
+          :to="`/graph/${g._id}`"
+          class="generator-list__item"
+          v-for="g in generators"
+          :key="g.id"
+        >{{g.name}}</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -23,6 +27,9 @@ export default {
   computed: {
     generators() {
       return this.$store.state.generatorList.data;
+    },
+    user(){
+      return this.$store.state.user;
     }
   }
 };

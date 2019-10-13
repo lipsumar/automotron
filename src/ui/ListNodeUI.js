@@ -16,6 +16,7 @@ export default class ListNodeUI extends BaseNodeUI{
     this.hasOutlet = {
       bottom: true
     }
+    this.defaultStroke = '#6a0080';
     this.build()
     this.resize()
   }
@@ -36,7 +37,7 @@ export default class ListNodeUI extends BaseNodeUI{
       width: 200,
       height: 60,
       fill: '#d05ce3',
-      stroke: '#6a0080'
+      stroke: this.defaultStroke
     })
 
     this.text = new Konva.Text({

@@ -25,6 +25,7 @@ export default class TagNodeUI extends BaseNodeUI {
       right: true
     }
     this.stroke = opts.stroke || '#3f51b5'
+    this.defaultStroke = this.stroke
     this.build()
 
   }
@@ -49,7 +50,7 @@ export default class TagNodeUI extends BaseNodeUI {
       width: Math.max(30, this.text.getTextWidth()) + padding * 2,
       height: this.text.height() + padding * 2,
       fill: '#3f51b5',
-      stroke: this.stroke,
+      stroke: this.defaultStroke,
       strokeWidth: 2
     });
 

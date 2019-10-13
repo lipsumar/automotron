@@ -18,6 +18,7 @@ export default class AutomotronGraph {
     this.links = []
     this.startContainer = null
     this.buildState(state)
+    this.setStartContainer(this.getNode(state.startNodeId))
   }
 
   buildState(state) {
@@ -46,8 +47,10 @@ export default class AutomotronGraph {
       }
       
     })
+  }
 
-    this.setStartContainer(this.getNode(state.startNodeId))
+  getNewNodeId(){
+    return this.nextNodeId++
   }
 
   getNode(id) {
@@ -56,7 +59,7 @@ export default class AutomotronGraph {
 
   createContainer(opts) {
     const c = new Container(opts)
-    c.id = opts.id || this.nextNodeId++
+    c.id = opts.id || this.getNewNodeId()
     this.nodes.push(c)
     return c
   }
@@ -71,7 +74,7 @@ export default class AutomotronGraph {
       generator = new Proxy({...opts, graph:this})
     }
     
-    generator.id = opts.id || this.nextNodeId++
+    generator.id = opts.id || this.getNewNodeId()
     this.nodes.push(generator)
     return generator
   }
@@ -81,14 +84,14 @@ export default class AutomotronGraph {
     if(opts.operator === 'split'){
       operator = new Split(opts)
     } else if(opts.operator=== 'loop'){
-      operator = new Loop(opts)
+      operator = new Loop({...opts, graph:this})
     } else if(opts.operator === 'tag'){
       operator = new Tag(opts)
     } else if(opts.operator === 'logic'){
       operator = new Logic(opts)
     }
     
-    operator.id = opts.id || this.nextNodeId++
+    operator.id = opts.id || this.getNewNodeId()
     this.nodes.push(operator)
     return operator
   }
@@ -123,42 +126,30 @@ export default class AutomotronGraph {
 
   reset(){
     this.sequence = []
-    this.comeBackTo = null
     this.nodes.forEach(n => n.reset())
     this.stepsCount = 0
     this.previousNode = null
   }
 
-  run() {
-    this.reset()
-    return this.step(this.startContainer)
+  run(){
+    this.reset();
+    return this.recursiveSteps(this.startContainer);
   }
 
-  run2(){
-    /*this.sequence = []
-    this.comeBackTo = null
-    this.nodes.forEach(n => n.reset())
-    this.stepsCount = 0
-    this.previousNode = null
-
-    let nextContainer = this.startContainer;
-    
-    const oneStep = () => {
-      this.step2(nextContainer, null, ).then(res => {
-        if(res.nextContainer){
-          nextContainer = res.nextContainer
-        }
-      })
-    }
-
-    oneStep()*/
+  recursiveSteps(container, agreementContainer=null, seq=null){
+    return this.step(container, agreementContainer, seq).then(({nextContainer, seq}) => {
+      if(nextContainer){
+        return this.recursiveSteps(nextContainer, null, seq);
+      } else {
+        return seq || this.sequence
+      }
+    })
   }
 
-  step(container, forceAgreementContainer=null, seq = null) {
-    // eslint-disable-next-line no-console
-    console.log('STEP', container)
+  step(container, forceAgreementContainer = null, seq = null){
+    console.log('STEP '+container)
+
     this.stepsCount++
-
     if(this.stepsCount>1000){
       console.log('inifnite loop')
       return
@@ -168,40 +159,13 @@ export default class AutomotronGraph {
       .then(evaluatedValue => {
         if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
-          console.log('SET', container, evaluatedValue)
+          console.log('  SET '+container, '\n  --> ', evaluatedValue.value, '\n      ', JSON.stringify(evaluatedValue.agreement))
           this.sequence.push(evaluatedValue)
           if(seq) seq.push(evaluatedValue)
         }
         if(evaluatedValue instanceof Array){
           const joined = evaluatedValue.map(v => v.value).join(' ')
-          console.log('SET', joined)
-          container.setEvaluatedValue({
-            value: joined
-          })
-        }
-
-        this.previousNode = container
-
-        const nextContainer = this.pickNextContainer(container)
-        if (nextContainer) {
-          return this.step(nextContainer, null, seq)
-        }
-        return seq || this.sequence
-      })
-  }
-
-  step2(container, forceAgreementContainer = null, seq = null){
-    return this.evaluateContainer(container, forceAgreementContainer)
-      .then(evaluatedValue => {
-        if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
-          container.setEvaluatedValue(evaluatedValue)
-          console.log('SET', container, evaluatedValue)
-          this.sequence.push(evaluatedValue)
-          if(seq) seq.push(evaluatedValue)
-        }
-        if(evaluatedValue instanceof Array){
-          const joined = evaluatedValue.map(v => v.value).join(' ')
-          console.log('SET', joined)
+          console.log('  SET '+container, joined)
           container.setEvaluatedValue({
             value: joined
           })
@@ -216,31 +180,24 @@ export default class AutomotronGraph {
 
   evaluateContainer(container, forceAgreementContainer = null) {
 
-    if (container instanceof Operator) {
-      return Promise.resolve(null)
-    }
-
     const generator = this.getContainerGenerator(container)
     if (generator) {
-      console.log('using generator instead=>', generator)
+      
       const agreementContainer = forceAgreementContainer || this.getAgreementContainer(container)
-      console.log('agreement =>', 'forced?'+(forceAgreementContainer?'yes':'no'))
-      //return generator.evaluate(agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null, this.previousNode)
+      console.log('  using generator instead => '+ generator+ '\n  agree with ' + (agreementContainer || 'none'))
+      //console.log('  with agreement ', agreementContainer.agreement, 'forced?'+(forceAgreementContainer?'yes':'no')) 
       return generator.evaluate(agreementContainer || null, this.previousNode)
     }
-
+    console.log('no generator')
     return container.evaluate()
   }
 
   pickNextContainer(container) {
     let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet==='inlet')
-    if (links.length === 0) return this.comeBackTo || null
+    if (links.length === 0) return null
 
     if (container instanceof Operator) {
-      const {nextOutlet, comeBackTo} = container.evaluateNextOutlet(this.sequence)
-      if(typeof comeBackTo !== 'undefined') {
-        this.comeBackTo = comeBackTo
-      }
+      const {nextOutlet} = container.evaluateNextOutlet(this.sequence)
       
       console.log('===>', nextOutlet, links)
       links = links.filter(l => l.fromOutlet === nextOutlet)

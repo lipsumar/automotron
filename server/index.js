@@ -2,11 +2,12 @@ require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const md5 = require('md5');
+const cors = require('cors')
 const expressSession = require('express-session');
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/dev', {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true, 
   useUnifiedTopology: true
 });
@@ -14,17 +15,16 @@ const User = require('./models/user');
 const Graph = require('./models/graph');
 const app = express();
 
+app.use(express.static('./public/'))
+
 const db = mongoose.connection;
 db.once('open', () => {
 
   passport.use(new Strategy((username, password, cb) => {
-    console.log({username, password})
     User.findOne({username}).then(user => {
       if(user && user.password === hashPassword(password)){
-        console.log('auth OK')
         cb(null, user);
       } else {
-        console.log('auth KO')
         cb(null, false);
       }
     })
@@ -49,14 +49,21 @@ db.once('open', () => {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
+  app.use(cors({origin:'http://localhost:1234', credentials:true}))
 
   app.post(
     '/login', 
     passport.authenticate('local'),
     (req, res) => {
-      res.send('youre logged in!')
+      res.send({_id: req.user._id, username: req.user.username})
     }
   );
+  app.get(
+    '/logged-in',
+    (req, res) => {
+      res.send(req.user ? {_id: req.user._id, username: req.user.username} : false)
+    }
+  )
 
   app.post(
     '/register',
@@ -88,34 +95,62 @@ db.once('open', () => {
       
     }
   );
+
+  app.get(
+    '/graphs/:graphId',
+    ensureLoggedIn,
+    (req, res) => {
+      Graph.findOne({_id:req.params.graphId}).then(graph => {
+        if(!graph){
+          res.status(404).send();
+          return;
+        }
+        res.send({
+          _id: graph._id,
+          graphData: JSON.parse(graph.graphData),
+          userId: graph.userId,
+          name: graph.name
+        });
+      })
+    }
+  )
   
   app.post(
     '/graphs',
     ensureLoggedIn,
     (req, res) => {
       const {graphData, id, name} = req.body;
-      if(!id){
-        Graph.getNewId().then(newId => {
-          const graph = new Graph({
-            _id: newId,
-            graph: JSON.stringify(graphData),
-            userId: req.user._id,
-            name
-          })
-          graph.save().then(() => {
-            res.send({
-              _id: newId,
-              graphData,
+      Promise.resolve().then(() => {
+        if(!id){
+          return Graph.getNewId().then(id => {
+            return new Graph({
+              _id: id,
+              graphData: JSON.stringify(graphData),
+              userId: req.user._id,
               name
             })
           })
+        }
+        return Graph.findById(id).then(graph => {
+          graph.graphData = JSON.stringify(graphData)
+          graph.name = name
+          return graph;
         })
-      }
+      }).then(graph => {
+        graph.save().then(() => {
+          res.send({
+            _id: id,
+            graphData,
+            name
+          })
+        })
+      })
     }
   )
   
-  app.listen(3000);
-  console.log('Listening on http://localhost:3000')
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT);
+  console.log(`Listening on http://localhost:${PORT}`)
   
 
 })

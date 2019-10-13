@@ -26,6 +26,7 @@ export default class ContainerNodeUI extends BaseNodeUI {
       right: true
     }
     this.stroke = opts.stroke || '#999'
+    this.defaultStroke = this.stroke;
     this.build()
 
   }
@@ -194,5 +195,6 @@ export default class ContainerNodeUI extends BaseNodeUI {
 
     this.emit('move')
   }
+  
 }
 

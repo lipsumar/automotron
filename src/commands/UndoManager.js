@@ -5,6 +5,9 @@ import CreateLinkCommand from "./CreateLinkCommand";
 import RemoveLinkCommand from "./RemoveLinkCommand";
 import SetNodeValueCommand from "./SetNodeValueCommand";
 import CreateNodeCommand from "./CreateNodeCommand";
+import SelectNodeCommand from './SelectNodeCommand';
+import PasteCommand from './PasteCommand';
+import RemoveNodesCommand from './RemoveNodesCommand';
 
 
 const commandMap = {
@@ -13,7 +16,10 @@ const commandMap = {
   createLink: CreateLinkCommand,
   removeLink: RemoveLinkCommand,
   setNodeValue: SetNodeValueCommand,
-  createNode: CreateNodeCommand
+  createNode: CreateNodeCommand,
+  select: SelectNodeCommand,
+  paste: PasteCommand,
+  removeNodes: RemoveNodesCommand
 }
 
 export default class UndoManager extends EventEmitter{
@@ -33,8 +39,10 @@ export default class UndoManager extends EventEmitter{
 
     const command = new commandMap[key](this.graph, this.ui, opts)
     command.execute()
-    this.redoStack = []
-    this.undoStack.push(command)
+    if(command.addToStack){
+      this.redoStack = []
+      this.undoStack.push(command)
+    }
 
     this.emit('action')
   }

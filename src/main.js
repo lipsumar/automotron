@@ -4,6 +4,7 @@ import store from './store'
 import App from './components/app.vue'
 import Toasted from 'vue-toasted';
 import * as ModalDialogs from 'vue-modal-dialogs'
+import api from './api';
 
 Vue.use(Toasted, {
   position: 'top-center',
@@ -11,6 +12,8 @@ Vue.use(Toasted, {
 })
 
 Vue.use(ModalDialogs)
+
+Vue.prototype.$api = api;
 
 new Vue({
   el: '#app',

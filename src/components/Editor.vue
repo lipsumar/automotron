@@ -3,7 +3,7 @@
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">Error: {{error}}</div>
     <div v-else>
-      <AutomotronUI :state="graph" @save="save"></AutomotronUI>
+      <AutomotronUI :state="graph.graphData" @save="save"></AutomotronUI>
     </div>
     <dialogs-wrapper transition-name="fade"></dialogs-wrapper>
   </div>
@@ -13,26 +13,24 @@
 import AutomotronUI from './AutomotronUI'
 import Prompt from './Prompt'
 import { create } from 'vue-modal-dialogs'
+import graphStoreService from '../services/GraphStoreService';
 
 const prompt = create(Prompt, 'title', 'content')
 
 export default {
-  props: ['generatorId'],
+  props: ['graphId'],
   data: function(){
     return {
-      generatorName: null
+      graphName: null
     }
   },
   created(){
-    this.$store.dispatch('loadEditorGraph', {id: this.generatorId})
-    this.unsubscribe = this.$store.subscribe((mutation, state) => {
-      if(mutation.type==='saveEditorGraphSuccess'){
-        this.$toasted.show('saved', {icon: 'check'})
-      }
-    })
-  },
-  destroyed(){
-    this.unsubscribe()
+    if(this.graphId) {
+      this.$store.dispatch('loadEditorGraph', {id: this.graphId});
+    }else {
+      this.$store.dispatch('newEditorGraph');
+    }
+    
   },
   computed:{
     loading(){
@@ -46,7 +44,7 @@ export default {
     },
     name(){
       const graph = this.graph
-      return graph.name || this.generatorName
+      return graph.name || this.graphName
     }
   },
   methods:{
@@ -61,11 +59,11 @@ export default {
         })
         .then(name => {
           if(name === false) return
-          this.generatorName = name
+          this.graphName = name
           graph.name = name
           this.$store.dispatch('saveEditorGraph', {
-            graph, 
-            id: this.generatorId
+            graphData: graph, 
+            id: this.graphId
           })
         })
     }
