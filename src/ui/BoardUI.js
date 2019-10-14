@@ -484,6 +484,7 @@ export default class BoardUI extends EventEmitter {
   }
 
   onPaste(e){
+    if(this.editing) return
     const paste = (event.clipboardData || window.clipboardData).getData('text');
     let data = null;
     try{
