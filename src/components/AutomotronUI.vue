@@ -32,7 +32,7 @@
     <div id="buttons">
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
-      <button @click="$router.push('/generator/new')" v-if="user">new</button>
+      <button @click="newGraph()" v-if="user">new</button>
       <button @click="$emit('save', {graph: graph.normalize(), board: board.getState()})" v-if="user">save</button>
       <button @click="undo" :disabled="!hasUndo" v-if="user">←</button>
       <button @click="redo" :disabled="!hasRedo" v-if="user">→</button>
@@ -151,6 +151,9 @@ export default {
         //rawValue: '...'
       });
       this.contextMenu = null
+    },
+    newGraph(){
+      window.location.href='/graph'
     }
   },
   computed:{
