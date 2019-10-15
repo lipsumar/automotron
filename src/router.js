@@ -4,6 +4,7 @@ import Help from './components/Help.vue'
 import Homepage from './components/Homepage.vue'
 import Editor from './components/Editor.vue'
 import Login from './components/Login.vue'
+import Register from './components/Register.vue'
 import graphStoreService from './services/GraphStoreService'
 
 Vue.use(VueRouter)
@@ -22,6 +23,10 @@ export default new VueRouter({
     {
       path: '/login',
       component: Login
+    },
+    {
+      path: '/register',
+      component: Register
     },
     {
       path: '/graph',

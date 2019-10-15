@@ -8,6 +8,33 @@ body {
   font-family: Avenir, sans-serif;
   color:#333;
 }
+a{
+  color:#4557e8;
+}
+
+form input{
+  display: block;
+  width: 100%;
+  font-size:1.2em;
+  padding:0.4em 0.6em;
+  border:1px solid rgb(220, 220, 220);
+}
+form input.error{
+  border-color:red;
+}
+form button{
+  border:none;
+  background-color: #eee;
+  padding: 0.5em 1em;
+  display: block;
+  font-size:1em;
+  border:1px solid rgb(220, 220, 220);
+}
+.field{
+  margin-bottom:2em;
+}
+
+
 #buttons{
   display: block;
   

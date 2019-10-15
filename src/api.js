@@ -10,6 +10,10 @@ export default {
     return ax.post('/login', {username, password})
       .then(resp => resp.data)
   },
+  register(username, password){
+    return ax.post('/register', {username, password})
+      .then(resp => resp.data)
+  },
   loggedIn(){
     return ax.get(`/logged-in?_${Math.random()}`)
       .then(resp => resp.data)

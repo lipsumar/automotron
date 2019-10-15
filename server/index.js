@@ -79,11 +79,24 @@ db.once('open', () => {
 
         const user = new User({username, password: hashPassword(password)});
         user.save().then(() => {
-          res.send(user);
+          req.login(user, err => {
+            if(err){
+              res.status(500).send()
+              console.log(err)
+              return
+            }
+            res.send(user);
+          })
+          
         });
       })
     }
-  )
+  ) 
+
+  app.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/')
+  })
   
   app.get(
     '/graphs', 
