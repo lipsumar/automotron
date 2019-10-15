@@ -8,7 +8,6 @@
     </div>
     <div class="generator-list">
       <router-link :to="`/login`" class="generator-list__item" v-if="!user">Login</router-link>
-      <hr>
       <div v-if="user">
         <router-link
           :to="`/graph/${g._id}`"
