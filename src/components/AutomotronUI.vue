@@ -29,13 +29,14 @@
       ></textarea>
     </div>
 
-    <div id="buttons" v-if="user">
+    <div id="buttons">
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
-      <button @click="$router.push('/generator/new')">new</button>
-      <button @click="$emit('save', {graph: graph.normalize(), board: board.getState()})">save</button>
-      <button @click="undo" :disabled="!hasUndo">←</button>
-      <button @click="redo" :disabled="!hasRedo">→</button>
+      <button @click="$router.push('/generator/new')" v-if="user">new</button>
+      <button @click="$emit('save', {graph: graph.normalize(), board: board.getState()})" v-if="user">save</button>
+      <button @click="undo" :disabled="!hasUndo" v-if="user">←</button>
+      <button @click="redo" :disabled="!hasRedo" v-if="user">→</button>
+      <router-link to="/login" v-if="!user">Login</router-link>
     </div>
 
     <div id="output" :class="{open:outputOpen}">
@@ -96,7 +97,8 @@ export default {
         el: this.$refs.container,
         graph: this.graph,
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
+        readOnly: this.user ? false : true,
       });
       if(this.state.board){
         this.board.stage.position(this.state.board.stage.pos)

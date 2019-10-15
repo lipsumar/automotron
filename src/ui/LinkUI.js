@@ -15,14 +15,17 @@ export default class LinkUI extends EventEmitter{
       stroke: opts.color,
       tension: this.bendy ? 0.6 : 0
     })
-    this.line.on('mouseenter', () => {
-      this.line.strokeWidth(5)
-      this.line.draw()
-    })
-    this.line.on('mouseleave', () => {
-      this.line.strokeWidth(2)
-      this.layer.draw()
-    })
+    if(!opts.readOnly){
+      this.line.on('mouseenter', () => {
+        this.line.strokeWidth(5)
+        this.line.draw()
+      })
+      this.line.on('mouseleave', () => {
+        this.line.strokeWidth(2)
+        this.layer.draw()
+      })
+    }
+    
     this.reposition()
 
     this.line.on('dblclick', () => {

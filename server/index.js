@@ -100,7 +100,6 @@ db.once('open', () => {
 
   app.get(
     '/graphs/:graphId',
-    ensureLoggedIn,
     (req, res) => {
       Graph.findOne({_id:req.params.graphId}).then(graph => {
         if(!graph){
@@ -139,6 +138,10 @@ db.once('open', () => {
           return graph;
         })
       }).then(graph => {
+        if(graph.userId !== req.user._id.toString()){
+          res.status(401).send()
+          return
+        }
         graph.save().then(() => {
           res.send({
             _id: id,

@@ -15,6 +15,7 @@ export default class BoardUI extends EventEmitter {
     super()
     this.moving = false
     this.editing = false
+    this.readOnly = opts.readOnly
     this.buildStage(opts)
     this.buildBackgroundLayer()
     this.buildLinkLayer()
@@ -201,6 +202,11 @@ export default class BoardUI extends EventEmitter {
       }
     })
 
+    if(this.readOnly){
+      console.log('undrag')
+      uiNode.group.draggable(false)
+    }
+
     this.nodeLayer.add(uiNode.group)
     this.nodesById[node.id] = uiNode
   }
@@ -222,11 +228,15 @@ export default class BoardUI extends EventEmitter {
       toInlet: link.toInlet,
       fromOutlet: link.fromOutlet,
       bendy: link.type === 'agreement',
-      color: link.type === 'agreement' ? 'green' : 'black'
+      color: link.type === 'agreement' ? 'green' : 'black',
+      readOnly: this.readOnly
     })
-    linkUI.on('dblclick', () => {
-      this.undoManager.execute('removeLink', { link })
-    })
+    if(!this.readOnly){
+      linkUI.on('dblclick', () => {
+        this.undoManager.execute('removeLink', { link })
+      })
+    }
+    
     this.linkLayer.add(linkUI.line)
     this.linkByIds[`${link.from.id}:${link.fromOutlet}-${link.to.id}:${link.toInlet}`] = linkUI
     return linkUI
@@ -303,6 +313,7 @@ export default class BoardUI extends EventEmitter {
     });
 
     stage.on('dblclick', e => {
+      if(this.readOnly) return
       e.evt.preventDefault()
 
       let current = e.target
@@ -350,6 +361,7 @@ export default class BoardUI extends EventEmitter {
       e.evt.preventDefault();
     })
     stage.on('click', e => {
+      if(this.readOnly) return
       if (e.evt.button === 2 || e.evt.ctrlKey) { // right click
 
         const transform = stage.getAbsoluteTransform().copy()
