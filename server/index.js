@@ -14,8 +14,10 @@ mongoose.connect(process.env.MONGO_URL, {
 const User = require('./models/user');
 const Graph = require('./models/graph');
 const app = express();
+const path = require('path');
+const indexHtml = require('fs').readFileSync(path.join(__dirname, '../dist/index.html')).toString();
 
-app.use(express.static('./public/'))
+app.use(express.static(path.join(__dirname,'./public/'))
 
 const db = mongoose.connection;
 db.once('open', () => {
@@ -147,6 +149,10 @@ db.once('open', () => {
       })
     }
   )
+
+  app.get('*', (req, res) => {
+    res.send(indexHtml);
+  })
   
   const PORT = process.env.PORT || 3000;
   app.listen(PORT);
