@@ -15,7 +15,8 @@ export default new Vuex.Store({
     },
     saveEditorGraph:{
       loading: false,
-      error: false
+      error: false,
+      id: null,
     },
     generatorList:{
       loading: false,
@@ -39,9 +40,10 @@ export default new Vuex.Store({
       state.saveEditorGraph.loading = true
       state.saveEditorGraph.error = false
     },
-    saveEditorGraphSuccess(state){
+    saveEditorGraphSuccess(state, id){
       state.saveEditorGraph.loading = false
       state.saveEditorGraph.error = false
+      state.saveEditorGraph.id = id
     },
     generatorListStartFetch(state){
       state.generatorList.loading = true
@@ -68,8 +70,8 @@ export default new Vuex.Store({
     },
     saveEditorGraph(ctx, payload){
       ctx.commit('saveEditorGraphStart')
-      api.saveGraph(payload.id, payload.graphData, payload.graphData.name).then(() => {
-        ctx.commit('saveEditorGraphSuccess')
+      api.saveGraph(payload.id, payload.graphData, payload.graphData.name).then(graph => {
+        ctx.commit('saveEditorGraphSuccess', graph._id)
       })
     },
     fetchGeneratorList(ctx){

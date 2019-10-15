@@ -157,7 +157,7 @@ db.once('open', () => {
         }
         graph.save().then(() => {
           res.send({
-            _id: id,
+            _id: graph.id,
             graphData,
             name
           })

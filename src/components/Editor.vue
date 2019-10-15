@@ -42,6 +42,9 @@ export default {
     graph(){
       return this.$store.state.editorGraph.data
     },
+    newGraphId(){
+      return this.$store.state.saveEditorGraph.id
+    },
     name(){
       const graph = this.graph
       return graph.name || this.graphName
@@ -70,6 +73,14 @@ export default {
   }, 
   components:{
     AutomotronUI
+  },
+  watch:{
+    newGraphId(newValue){
+      if(!this.graphId){
+        this.graphId = newValue;
+        this.$router.replace('/graph/'+this.graphId)
+      }
+    }
   }
 }
 </script>
