@@ -2,10 +2,12 @@
   <div class="homepage">
     <div class="hero">
       <h1 class="hero__title">Automotron</h1>
+      <div class="hero__buttons">
+        <router-link :to="`/graph`" class="btn btn--primary" v-if="user" >New generator</router-link>
+      </div>
     </div>
     <div class="generator-list">
       <router-link :to="`/login`" class="generator-list__item" v-if="!user">Login</router-link>
-      <router-link :to="`/graph`" class="generator-list__item" v-if="user">New generator</router-link>
       <hr>
       <div v-if="user">
         <router-link
@@ -37,7 +39,8 @@ export default {
 
 <style>
 .homepage {
-  height: 100%;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .hero {
@@ -50,13 +53,27 @@ export default {
   font-size: 8vw;
   margin: 0;
 }
+.hero__buttons{
+  
+  text-align: center;
+}
 
 .generator-list {
   margin: 2rem 0;
+  text-align: center;
 }
 .generator-list__item {
-  display: block;
-  font-size: 2rem;
+  display: inline-block;
+  font-size: 1.2rem;
   text-align: center;
+  width:300px;
+  
+  text-align: left;
+  background-color: #808cf2;
+  color:#fff;
+  font-weight: bold;
+  margin:1em;
+  padding:0.8em;
+  text-decoration: none;
 }
 </style>

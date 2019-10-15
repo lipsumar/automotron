@@ -22,17 +22,28 @@ form input{
 form input.error{
   border-color:red;
 }
-form button{
+form button, .btn{
   border:none;
   background-color: #eee;
   padding: 0.5em 1em;
-  display: block;
+  display: inline-block;
   font-size:1em;
   border:1px solid rgb(220, 220, 220);
+  color:#333;
+  text-decoration: none;
+}
+.btn--primary{
+  border-color: #4557e8; 
+  color:#4557e8;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 .field{
   margin-bottom:2em;
 }
+
+
+
 
 
 #buttons{
