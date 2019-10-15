@@ -44,8 +44,8 @@
         <label>output</label>
       </div>
       <div class="output__body">
-        <p v-html="outputText.split('\\n').join('<br>')"></p>
-        <hr/>
+        <p v-html="outputText.split('\\n').join('<br>')" style="display:none"></p>
+        <!-- <hr/> -->
         <p v-html="outputTextFixed.split('\\n').join('<br>')"></p>
       </div>
     </div>
