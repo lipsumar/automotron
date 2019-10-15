@@ -6,6 +6,7 @@ export default class ContainerNode extends Node {
     this.evaluatedValue = null
     this.setValue(opts.value || '...')
     this.type = 'container'
+    this.graph = opts.graph
   }
 
   setValue(value) {

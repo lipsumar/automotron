@@ -10,6 +10,7 @@ import Macro from "./Macro";
 import Proxy from "./Proxy";
 import Tag from './Tag';
 import Logic from './Logic';
+import MetaNode from "./Meta";
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -23,7 +24,7 @@ export default class AutomotronGraph {
 
   buildState(state) {
     state.nodes.forEach(node => {
-      if (node.type === 'container') {
+      if (node.type === 'container' || node.type === 'meta') {
         this.createContainer(node)
       } else if (node.type === 'generator') {
         this.createGenerator(node)
@@ -57,9 +58,55 @@ export default class AutomotronGraph {
     return this.nodes.find(n => n.id === id)
   }
 
+  getNodePath(node, prepend = '/'){
+    if(!node.value) return '/'
+    const finalNode = this.nodes.find(n => n.id === node.id)
+    if(finalNode){
+      return prepend + finalNode.value.value
+    }
+    const metaNodes = this.nodes.filter(n => n.type === 'meta')
+    for(let i = 0;i<metaNodes.length; i++){
+      let n = metaNodes[i]
+      const path = n.graph.getNodePath(node, prepend + n.value.value + '/')
+      if(path){
+        return path
+      }
+    }
+    return null
+  }
+
+  getNodeAtPath(path){
+    const eachNodes = this.getEachNodeAtPath(path)
+    return eachNodes.pop()
+  }
+
+  getEachNodeAtPath(path){
+    const nodesAtPath = []
+    const segments = path.split('/')
+    segments.shift()
+    let node = this
+    nodesAtPath.push(node)
+    if(segments.length === 1 && segments[0] === ''){
+      return nodesAtPath
+    }
+    for(let i =0;i<segments.length;i++){
+      let segment = segments[i]
+      node = (node.graph || node).nodes.find(n => n.type === 'meta' && n.value.value === segment)
+      nodesAtPath.push(node)
+    }
+    console.log('node at path >>', path, node)
+    return nodesAtPath
+  }
+
   createContainer(opts) {
-    const c = new Container(opts)
-    c.id = opts.id || this.getNewNodeId()
+    let c
+    opts.id = opts.id || this.getNewNodeId()
+    if(opts.type === 'container'){
+      c = new Container({...opts, graph:this})
+    }else {
+      c = new MetaNode(opts)
+    }
+    c.id = opts.id
     this.nodes.push(c)
     return c
   }
@@ -160,7 +207,12 @@ export default class AutomotronGraph {
         if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
           console.log('  SET '+container, '\n  --> ', evaluatedValue.value, '\n      ', JSON.stringify(evaluatedValue.agreement))
-          this.sequence.push(evaluatedValue)
+          if(evaluatedValue.value instanceof Array){
+            this.sequence.push(...evaluatedValue.value)
+          }else {
+            this.sequence.push(evaluatedValue)
+          }
+          
           if(seq) seq.push(evaluatedValue)
         }
         if(evaluatedValue instanceof Array){

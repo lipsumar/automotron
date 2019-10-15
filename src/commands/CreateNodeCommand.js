@@ -2,6 +2,7 @@ import BaseCommand from './BaseCommand'
 
 const methodMap = {
   container: 'createContainer',
+  meta: 'createContainer',
   generator: 'createGenerator',
   operator: 'createOperator'
 }

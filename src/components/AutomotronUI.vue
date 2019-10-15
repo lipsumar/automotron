@@ -11,7 +11,7 @@
         v-for="(op,i) in contextMenuOptions"
         :key="`op-${i}`"
         @click="contextMenuChoice(op)"
-      >{{op.type}}: {{op.generator || op.operator}}</div>
+      >{{op.type}}: {{op.generator || op.operator || ''}}</div>
     </div>
 
     <div
@@ -36,6 +36,24 @@
       <button @click="$emit('save', {graph: graph.normalize(), board: board.getState()})">save</button>
       <button @click="undo" :disabled="!hasUndo">←</button>
       <button @click="redo" :disabled="!hasRedo">→</button>
+      <div class="meta-node-stack">
+        <!-- <div class="meta-node-stack__item">
+          <a href="#" @click.prevent="goToMetaNode(rootNode)">Root</a>
+        </div> -->
+        <div class="meta-node-stack__item"
+          v-for="(node, idx) in metaNodeStack"
+          :key="node.id"
+        >
+          <template v-if="idx>0">&nbsp;&gt;</template>
+          <a href="#" @click.prevent="goToMetaNode(node)">
+            <template v-if="idx===0">Root</template>
+            <template v-else>
+              {{typeof node.value === 'string' ? node.value : node.value.value}}
+            </template>
+          </a>
+        </div>
+        
+      </div>
     </div>
 
     <div id="output" :class="{open:outputOpen}">
@@ -85,8 +103,10 @@ export default {
         { type: "operator", operator: "loop" },
         { type: "operator", operator: "tag" },
         { type: "operator", operator: "logic" },
+        { type: "meta"},
       ],
-      outputOpen: true
+      outputOpen: true,
+      metaNodeStack: [],
     };
   },
   methods: {
@@ -120,6 +140,16 @@ export default {
       this.board.on("contextmenu", payload => {
         this.contextMenu = payload;
       });
+
+      this.metaNodeStack = this.graph.getEachNodeAtPath('/')
+      this.board.on('nodePathChanged', nodePath => {
+        const nodes = this.graph.getEachNodeAtPath(nodePath)
+        
+        const lastNode = nodes[nodes.length - 1]
+        this.undoManager.execute('changeGraph', {node: lastNode})
+        this.undoManager.graph = lastNode.graph || lastNode
+        this.metaNodeStack = nodes
+      })
     },
     run() {
       this.graph.run().then(sequence => {
@@ -149,6 +179,11 @@ export default {
         //rawValue: '...'
       });
       this.contextMenu = null
+    },
+    goToMetaNode(node){
+      this.undoManager.execute('changeGraph', {node})
+      this.undoManager.graph = node.graph || node
+      this.metaNodeStack = this.graph.getEachNodeAtPath(this.graph.getNodePath(node))
     }
   },
   computed:{

@@ -68,3 +68,11 @@ body {
   box-sizing: border-box;
   padding: 10px;
 }
+
+.meta-node-stack{
+  display:inline-block;
+  margin-left:1em;
+}
+.meta-node-stack__item{
+  display: inline;
+}

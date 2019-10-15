@@ -9,6 +9,7 @@ import MacroNodeUI from './MacroNodeUI';
 import ProxyNodeUI from './ProxyNodeUI';
 import TagNodeUI from './TagNodeUI';
 import LogicNodeUI from './LogicNodeUI.js';
+import MetaNodeUI from './MetaNodeUI';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -19,7 +20,8 @@ export default class BoardUI extends EventEmitter {
     this.buildBackgroundLayer()
     this.buildLinkLayer()
     this.buildNodeLayer()
-
+    this.rootGraph = opts.graph
+    this.currentNodePath = '/'
     this.graph = opts.graph
 
     this.nodesById = {}
@@ -34,17 +36,14 @@ export default class BoardUI extends EventEmitter {
   }
 
   buildGraph(graph) {
-
-
     graph.nodes.forEach(node => {
-      if (node.type === 'container') {
+      if (node.type === 'container' || node.type === 'meta') {
         this.createContainer(node)
       } else if (node.type === 'generator') {
         this.createGenerator(node)
       } else if (node.type === 'operator') {
         this.createOperator(node)
       }
-
     })
 
     graph.links.forEach(link => {
@@ -54,13 +53,27 @@ export default class BoardUI extends EventEmitter {
 
   createContainer(node) {
     console.log('create containerUI for', node)
-    const container = new ContainerNodeUI({
-      stage: this.stage,
-      layer: this.nodeLayer,
-      value: node.value.value,
-      pos: node.pos,
-      stroke: this.graph.startContainer.id === node.id ? 'green' : '#999'
-    })
+    let container
+    if(node.type === 'container'){
+      container = new ContainerNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.value.value,
+        pos: node.pos,
+        stroke: this.graph.startContainer.id === node.id ? 'green' : '#999'
+      })
+    }else if(node.type === 'meta'){
+      container = new MetaNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.value.value,
+        pos: node.pos,
+      })
+      container.on('enter', () => {
+        this.currentNodePath = this.rootGraph.getNodePath(node)
+        this.emit('nodePathChanged', this.currentNodePath)
+      });
+    }
     
     this.setupNode(container, node)
   }
@@ -341,7 +354,8 @@ export default class BoardUI extends EventEmitter {
       //createContainer('...', { pos: point })
       this.undoManager.execute('createContainer', {
         pos: point,
-        value: '...'
+        value: '...',
+        type: 'container'
       })
     })
 
@@ -452,6 +466,20 @@ export default class BoardUI extends EventEmitter {
   buildNodeLayer() {
     this.nodeLayer = new Konva.Layer();
     this.stage.add(this.nodeLayer)
+  }
+
+  destroyGraph(){
+
+    Object.keys(this.linkByIds).forEach(linkId => {
+      this.removeLink(this.linkByIds[linkId])
+    })
+
+    Object.keys(this.nodesById).forEach(nodeId => {
+      this.removeNode(nodeId)
+    })
+
+    this.nodesById = {}
+    this.linkByIds = {}
   }
 
   setUndoManager(undoManager) {
