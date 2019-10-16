@@ -376,7 +376,9 @@ export default class BoardUI extends EventEmitter {
         })
         
       } else { // normal click
-        
+        if(this.editing){
+          this.emit('setEditValue');
+        }
         //this.undoManager.execute('select', {nodeId: null})
       }
     })

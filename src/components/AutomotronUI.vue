@@ -100,6 +100,9 @@ export default {
         height: window.innerHeight,
         readOnly: this.user ? false : true,
       });
+      this.board.on('setEditValue', () => {
+        this.submitNodeEdit()
+      })
       if(this.state.board){
         this.board.stage.position(this.state.board.stage.pos)
         this.board.stage.scale(this.state.board.stage.scale)
