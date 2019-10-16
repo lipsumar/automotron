@@ -3,7 +3,8 @@
     <div class="hero">
       <h1 class="hero__title">Automotron</h1>
       <div class="hero__buttons">
-        <router-link :to="`/graph`" class="btn btn--primary" v-if="user" >New generator</router-link>
+        <div class="hero__welcome" v-if="user">Welcome @{{user.username}}</div>
+        <router-link :to="`/graph`" class="btn btn--primary" v-if="user">New generator</router-link>
       </div>
     </div>
     <div class="generator-list">
@@ -74,5 +75,9 @@ export default {
   margin:1em;
   padding:0.8em;
   text-decoration: none;
+}
+.hero__welcome{
+  font-size: 1.5em;
+  margin-bottom:1.4em;
 }
 </style>
