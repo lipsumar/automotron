@@ -15,9 +15,10 @@ const User = require('./models/user');
 const Graph = require('./models/graph');
 const app = express();
 const path = require('path');
-const indexHtml = require('fs').readFileSync(path.join(__dirname, '../public/index.html')).toString();
+const PUBLIC_DIR = process.env.PUBLIC_DIR || 'public'
+const indexHtml = require('fs').readFileSync(path.join(__dirname, `../${PUBLIC_DIR}/index.html`)).toString();
 
-app.use(express.static(path.join(__dirname,'../public/')));
+app.use(express.static(path.join(__dirname,`../${PUBLIC_DIR}`)));
 
 const db = mongoose.connection;
 db.once('open', () => {
