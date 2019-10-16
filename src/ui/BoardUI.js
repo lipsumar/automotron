@@ -498,6 +498,7 @@ export default class BoardUI extends EventEmitter {
   }
 
   onCopy(e){
+    if(this.editing) return
     const uiNodes = this.getSelectedNodes();
     const nodes = uiNodes.map(uiNode => uiNode.node.normalize())
     const nodeIds = nodes.map(n => n.id)
