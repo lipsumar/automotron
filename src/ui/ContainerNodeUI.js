@@ -63,6 +63,9 @@ export default class ContainerNodeUI extends BaseNodeUI {
     this.outlet.on('connect', uiNode => {
       this.emit('connect', {uiNode, inlet: 'inlet', outlet: 'outlet'})
     })
+    this.outlet.on('dropped', to => {
+      this.emit('createContainer', to)
+    })
 
 
     this.inlet = new InletUI(this, 'left')

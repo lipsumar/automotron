@@ -202,6 +202,19 @@ export default class BoardUI extends EventEmitter {
       }
     })
 
+    uiNode.on('createContainer', pos => {
+      this.undoManager.execute('createLinkedContainer', {
+        pos: {
+          x: pos.x,
+          y: pos.y - 30
+        },
+        from: {
+          nodeId: node.id,
+          outlet: 'outlet',
+        }
+      })
+    })
+
     if(this.readOnly){
       console.log('undrag')
       uiNode.group.draggable(false)
@@ -351,7 +364,10 @@ export default class BoardUI extends EventEmitter {
 
       //createContainer('...', { pos: point })
       this.undoManager.execute('createContainer', {
-        pos: point,
+        pos: {
+          x: point.x - 30,
+          y: point.y - 30,
+        },
         value: '...'
       })
     })

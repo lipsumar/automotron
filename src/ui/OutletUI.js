@@ -109,6 +109,11 @@ export default class OutletUI extends EventEmitter {
 
       if (this.outletDragCurrentlyOnInlet) {
         this.emit('connect', this.outletDragCurrentlyOnInlet)
+      } else {
+        const transform = this.node.stage.getAbsoluteTransform().copy()
+        transform.invert()
+        const to = transform.point(this.node.stage.getPointerPosition())
+        this.emit('dropped', to)
       }
 
       this.outletLine.destroy()
