@@ -33,7 +33,10 @@
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
       <button @click="newGraph()" v-if="user">new</button>
-      <button @click="$emit('save', {graph: graph.normalize(), board: board.getState()})" v-if="user">save</button>
+      <button @click="save()" v-if="user">save</button>
+      <label style="margin-right:0.3em">
+        <input type="checkbox" v-model="autosaveEnabled"> autosave
+      </label>
       <button @click="undo" :disabled="!hasUndo" v-if="user">←</button>
       <button @click="redo" :disabled="!hasRedo" v-if="user">→</button>
       <router-link to="/login" v-if="!user">Login</router-link>
@@ -58,6 +61,7 @@ import AutomotronGraph from "../automotron/Graph.js";
 import eventBus from "../eventBus.js";
 import UndoManager from "../commands/UndoManager.js";
 import frenchFixer from "../services/FrenchFixer"
+import debounce from 'lodash.debounce';
 
 export default {
   props: {
@@ -87,7 +91,8 @@ export default {
         { type: "operator", operator: "tag" },
         { type: "operator", operator: "logic" },
       ],
-      outputOpen: true
+      outputOpen: true,
+      autosaveEnabled: false
     };
   },
   methods: {
@@ -110,9 +115,13 @@ export default {
       }
     
       this.undoManager = new UndoManager(this.graph, this.board);
+      this.debouncedSave = debounce(this.save.bind(this), 4000);
       this.undoManager.on("action", () => {
         this.hasUndo = this.undoManager.hasUndo();
         this.hasRedo = this.undoManager.hasRedo();
+        if(this.autosaveEnabled){
+          this.debouncedSave();
+        }
       });
       this.board.setUndoManager(this.undoManager);
       this.board.on("editNode", payload => {
@@ -131,6 +140,12 @@ export default {
         console.log('OUTPUT SEQUENCE', sequence)
         this.outputText = sequence.map(i => i.value).join(" ");
       });
+    },
+    save(){
+      this.$emit('save', {
+        graph: this.graph.normalize(), 
+        board: this.board.getState()
+      })
     },
     undo() {
       this.undoManager.undo();

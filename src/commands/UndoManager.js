@@ -44,9 +44,9 @@ export default class UndoManager extends EventEmitter{
     if(command.addToStack){
       this.redoStack = []
       this.undoStack.push(command)
+      this.emit('action')
     }
 
-    this.emit('action')
   }
 
   undo(){
