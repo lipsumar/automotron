@@ -2,7 +2,7 @@
   <form @submit.prevent="submit" class="login">
     <div class="field">
       <label>Username</label>
-      <input type="text" v-model="username">
+      <input type="text" v-model="username" autofocus>
     </div>
     <div class="field">
       <label>Password</label>

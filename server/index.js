@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express');
+const admin = require('./admin')
 const bodyParser = require('body-parser');
 const md5 = require('md5');
 const cors = require('cors')
@@ -58,13 +59,21 @@ db.once('open', () => {
     '/login', 
     passport.authenticate('local'),
     (req, res) => {
-      res.send({_id: req.user._id, username: req.user.username})
+      res.send({
+        _id: req.user._id, 
+        username: req.user.username,
+        role: req.user.role,
+      })
     }
   );
   app.get(
     '/logged-in',
     (req, res) => {
-      res.send(req.user ? {_id: req.user._id, username: req.user.username} : false)
+      res.send(req.user ? {
+        _id: req.user._id, 
+        username: req.user.username,
+        role: req.user.role,
+      } : false)
     }
   )
 
@@ -166,6 +175,8 @@ db.once('open', () => {
       })
     }
   )
+
+  app.use(admin)
 
   app.get('*', (req, res) => {
     res.send(indexHtml);

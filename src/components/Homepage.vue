@@ -1,6 +1,7 @@
 <template>
   <div class="homepage">
     <div class="hero">
+      <router-link :to="`/admin`" class="btn btn--primary admin-btn" v-if="user && user.role==='admin'">Admin</router-link>
       <h1 class="hero__title">Automotron</h1>
       <div class="hero__buttons">
         <div class="hero__welcome" v-if="user">Welcome @{{user.username}}</div>
@@ -79,5 +80,10 @@ export default {
 .hero__welcome{
   font-size: 1.5em;
   margin-bottom:1.4em;
+}
+.admin-btn{
+  position: absolute;
+  top:1em;
+  right:1em;
 }
 </style>

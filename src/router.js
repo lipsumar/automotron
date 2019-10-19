@@ -5,6 +5,8 @@ import Homepage from './components/Homepage.vue'
 import Editor from './components/Editor.vue'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
+import Admin from './components/Admin.vue'
+import AdminUser from './components/AdminUser.vue'
 import graphStoreService from './services/GraphStoreService'
 
 Vue.use(VueRouter)
@@ -41,6 +43,15 @@ export default new VueRouter({
     {
       path: '/@:username/:graphId',
       component: Editor,
+      props: true
+    },
+    {
+      path: '/admin',
+      component: Admin
+    },
+    {
+      path: '/admin/user/:userId',
+      component: AdminUser,
       props: true
     }
   ]

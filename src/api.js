@@ -29,5 +29,13 @@ export default {
   saveGraph(id, graphData, name){
     return ax.post('/graphs', {id, graphData, name})
       .then(resp => resp.data)
+  },
+  getUsers(){
+    return ax.get('/admin/users')
+      .then(resp => resp.data)
+  },
+  getUserAndGraphs(userId){
+    return ax.get('/admin/users/'+userId)
+      .then(resp => resp.data)
   }
 }
