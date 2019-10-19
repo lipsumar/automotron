@@ -29,11 +29,11 @@
       ></textarea>
     </div>
 
-    <div id="buttons">
+    <div id="buttons" v-if="graphObj">
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
       <button @click="newGraph()" v-if="user">new</button>
-      <button @click="save()" v-if="user">save</button>
+      <button @click="save()" v-if="user && user._id===graphObj.userId">save</button>
       <label style="margin-right:0.3em">
         <input type="checkbox" v-model="autosaveEnabled"> autosave
       </label>
@@ -65,13 +65,13 @@ import debounce from 'lodash.debounce';
 
 export default {
   props: {
-    state: {
+    graphObj: {
       type: Object,
       required: true
     }
   },
   mounted() {
-    console.log("Mounted UI", this.state);
+    console.log("Mounted UI", this.graphObj.graphData);
     this.build();
   },
   data: function() {
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     build() {
-      this.graph = new AutomotronGraph(this.state.graph);
+      this.graph = new AutomotronGraph(this.graphObj.graphData.graph);
       this.board = new AutomotronBoardUI({
         el: this.$refs.container,
         graph: this.graph,
@@ -108,9 +108,10 @@ export default {
       this.board.on('setEditValue', () => {
         this.submitNodeEdit()
       })
-      if(this.state.board){
-        this.board.stage.position(this.state.board.stage.pos)
-        this.board.stage.scale(this.state.board.stage.scale)
+      console.log('==>',this.graphObj)
+      if(this.graphObj.graphData.board){
+        this.board.stage.position(this.graphObj.graphData.board.stage.pos)
+        this.board.stage.scale(this.graphObj.graphData.board.stage.scale)
         this.board.stage.draw()
       }
     

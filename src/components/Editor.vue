@@ -3,7 +3,7 @@
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">Error: {{error}}</div>
     <div v-else>
-      <AutomotronUI :state="graph.graphData" @save="save"></AutomotronUI>
+      <AutomotronUI :graphObj="graph" @save="save"></AutomotronUI>
     </div>
     <dialogs-wrapper transition-name="fade"></dialogs-wrapper>
   </div>
