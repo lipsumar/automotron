@@ -3,15 +3,15 @@ const router = express.Router();
 const User = require('./models/user');
 const Graph = require('./models/graph');
 
-router.use((req, res, next) => {
+const ensureAdmin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next()
   } else {
     res.status(403).send();
   }
-})
+}
 
-router.get('/admin/users', (req, res) => {
+router.get('/admin/users', ensureAdmin, (req, res) => {
   Promise.all([
     User.find({}),
     Graph.aggregate([{ "$group": { _id: "$userId", count: { $sum: 1 } } }])
@@ -27,7 +27,7 @@ router.get('/admin/users', (req, res) => {
   })
 })
 
-router.get('/admin/users/:userId', (req, res) => {
+router.get('/admin/users/:userId', ensureAdmin, (req, res) => {
   Promise.all([
     User.findOne({_id: req.params.userId}),
     Graph.find({userId: req.params.userId})
