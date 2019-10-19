@@ -215,6 +215,13 @@ export default class BoardUI extends EventEmitter {
       })
     })
 
+    uiNode.on('settings', () => {
+      this.emit('openSettings', {
+        nodeId: node.id,
+        config: uiNode.getSettingsConfig()
+      })
+    })
+
     if(this.readOnly){
       console.log('undrag')
       uiNode.group.draggable(false)

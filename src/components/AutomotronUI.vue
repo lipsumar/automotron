@@ -29,6 +29,26 @@
       ></textarea>
     </div>
 
+    <div
+      id="node-settings"
+      v-if="nodeSettings"
+    >
+      <div class="node-settings-box">
+        <div class="node-settings-box__body">
+          <div v-for="setting in nodeSettings.config" :key="setting.id">
+            <div v-if="setting.type === 'checkbox'">
+              <label>
+                <input type="checkbox" v-model="settingsModel[setting.id]"> {{setting.text}}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="node-settings-box__footer">
+          <button class="btn" @click="saveNodeSettings">OK</button>
+        </div>
+      </div>
+    </div>
+
     <div id="buttons" v-if="graphObj">
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
@@ -93,7 +113,9 @@ export default {
         { type: "operator", operator: "logic" },
       ],
       outputOpen: true,
-      autosaveEnabled: false
+      autosaveEnabled: false,
+      nodeSettings: null,
+      settingsModel: {},
     };
   },
   methods: {
@@ -136,6 +158,13 @@ export default {
       this.board.on("contextmenu", payload => {
         this.contextMenu = payload;
       });
+      this.board.on('openSettings', payload => {
+        this.settingsModel = payload.config.reduce((acc, setting) => {
+          acc[setting.id] = setting.value
+          return acc;
+        }, {});
+        this.nodeSettings = payload;
+      })
     },
     run() {
       this.graph.run().then(sequence => {
@@ -168,6 +197,13 @@ export default {
       });
       this.nodeEdit = null;
       this.board.editing = false
+    },
+    saveNodeSettings(){
+      this.undoManager.execute("setNodeSettings", {
+        nodeId: this.nodeSettings.nodeId,
+        settings: this.settingsModel
+      });
+      this.nodeSettings = null
     },
     contextMenuChoice(option) {
       this.undoManager.execute("createNode", {

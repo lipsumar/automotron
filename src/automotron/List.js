@@ -7,6 +7,9 @@ export default class List extends Generator{
     this.setValue(opts.rawValue || '...')
     this.type = 'generator'
     this.generator = 'list'
+    this.settings = opts.settings || {
+      nonRepeat: false
+    }
   }
   setValue(value){
     if(typeof value === 'string'){
@@ -17,8 +20,13 @@ export default class List extends Generator{
       this.value = value
       //this.rawValue = value.map(v => v.value).join('\n')
     }
-    
   }
+
+  setSettings(settings){
+    this.settings = {...settings};
+  }
+
+
   evaluate(agreementContainer = null){
     console.log('    ->List')
     const agreementValue = agreementContainer ? (agreementContainer.evaluatedValue || agreementContainer.value) : null
@@ -30,7 +38,7 @@ export default class List extends Generator{
     }
 
     const possible = this.value.filter(onlyAgreeable.bind(null, agreementValue))
-    const chosen = sample(possible)
+    const chosen = this.settings.nonRepeat ? this.nonRepeatSample(possible) : sample(possible)
     const evaluatedValue = {
       value: chosen.value,
       agreement: agreementValue.agreement
@@ -43,6 +51,23 @@ export default class List extends Generator{
     }
     console.log('    =>',{evaluatedValue: JSON.stringify(evaluatedValue)})
     return Promise.resolve(evaluatedValue)
+  }
+
+  nonRepeatSample(arr){
+    let ok = false
+    let chosen
+    while(!ok){
+      chosen = sample(arr)
+      if(!this.previouslyChosen.includes(chosen)){
+        ok = true
+      }
+    }
+
+    this.previouslyChosen.push(chosen)
+    if(this.previouslyChosen.length > arr.length/2){
+      this.previouslyChosen.splice(0, Math.ceil(this.previouslyChosen.length - arr.length/2))
+    }
+    return chosen;
   }
 
   normalize(){

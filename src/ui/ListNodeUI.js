@@ -68,10 +68,26 @@ export default class ListNodeUI extends BaseNodeUI{
       this.emit('connect', {uiNode, inlet:'generator', outlet: 'outlet'})
     })
 
+
+    this.settingsText = new Konva.Text({
+      x: headerRect.width() - 20,
+      y: 8,
+      width: 22,
+      height: 22,
+      text: '⚙️',
+      fontSize: 15
+    })
+
+    this.settingsText.on('click', e => {
+      e.cancelBubble = true
+      this.emit('settings')
+    })
+
     this.group.add(this.rect)
     this.group.add(headerRect)
     this.group.add(headerText)
     this.group.add(this.text)
+    this.group.add(this.settingsText)
     
   }
 
@@ -90,6 +106,17 @@ export default class ListNodeUI extends BaseNodeUI{
     this.text.text(this.value)
     this.rect.height(25 + this.text.height())
     this.outlet.reposition()
+  }
+
+  getSettingsConfig(){
+    return [
+      {
+        id: 'nonRepeat',
+        type: 'checkbox',
+        text: 'non repeat',
+        value: this.node.settings.nonRepeat
+      }
+    ]
   }
 }
 
