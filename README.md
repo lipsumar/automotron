@@ -8,6 +8,8 @@ Try it here: <http://automotron.lipsumar.io>
 
 **DISCLAIMER**: This is a work in progress
 
+[Documentation en français :fr:](https://github.com/lipsumar/automotron/wiki/documentation)
+
 
 ## What is the AUTOMOTRON ?
 
@@ -99,6 +101,7 @@ or
 ## Controls
 
 * The map can be zoomed in or out with by scrolling up or down
+* The map can also be moved by dragging on an empty area
 * A double click in an empty area will create a container
 * A double click on a container or list generator will edit it; afterwards, [cmd+enter] will save the changes
 * A right clic on an empty area will open a menu to create a List or a Split
