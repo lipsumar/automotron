@@ -34,9 +34,10 @@
       <button @click="run">run</button>
       <button @click="newGraph()" v-if="user">new</button>
       <button @click="save()" v-if="user && user._id===graphObj.userId">save</button>
-      <label style="margin-right:0.3em">
+      <label style="margin-right:0.3em" v-if="user && user._id===graphObj.userId">
         <input type="checkbox" v-model="autosaveEnabled"> autosave
       </label>
+      <button @click="fork()" v-if="user && user._id!==graphObj.userId">fork</button>
       <button @click="undo" :disabled="!hasUndo" v-if="user">←</button>
       <button @click="redo" :disabled="!hasRedo" v-if="user">→</button>
       <router-link to="/login" v-if="!user">Login</router-link>
@@ -144,6 +145,12 @@ export default {
     },
     save(){
       this.$emit('save', {
+        graph: this.graph.normalize(), 
+        board: this.board.getState()
+      })
+    },
+    fork(){
+      this.$emit('fork', {
         graph: this.graph.normalize(), 
         board: this.board.getState()
       })

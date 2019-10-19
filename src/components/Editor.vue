@@ -3,7 +3,7 @@
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">Error: {{error}}</div>
     <div v-else>
-      <AutomotronUI :graphObj="graph" @save="save"></AutomotronUI>
+      <AutomotronUI :graphObj="graph" @save="save" @fork="fork"></AutomotronUI>
     </div>
     <dialogs-wrapper transition-name="fade"></dialogs-wrapper>
   </div>
@@ -56,7 +56,7 @@ export default {
       Promise.resolve()
         .then(() => {
           if(!graph.name){
-            return prompt('Save new generator', 'Please give a name to your generator')
+            return prompt('Save new graph', 'Please give a name to your graph')
           }
           return graph.name
         })
@@ -69,16 +69,31 @@ export default {
             id: this.graphId
           })
         })
+    },
+    fork(graph){
+      prompt('Fork graph', 'Please give a name to this graph').then(name => {
+        if(name===false) return
+        graph.name = name
+        this.$store.dispatch('saveEditorGraph', {
+          graphData: graph,
+        })
+      })
     }
   }, 
   components:{
     AutomotronUI
   },
   watch:{
-    newGraphId(newValue){
+    newGraphId(newValue, oldValue){
+      console.log({newValue, oldValue, curGraphId: this.graphId})
       if(!this.graphId){
         this.graphId = newValue;
         this.$router.replace('/graph/'+this.graphId)
+      }
+      if(this.graphId !== newValue){
+        // fork just saved
+        this.$router.replace('/graph/'+newValue)
+        window.location.reload()
       }
     }
   }
