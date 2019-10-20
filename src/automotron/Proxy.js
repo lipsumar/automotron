@@ -8,10 +8,29 @@ export default class Proxy extends Generator{
     this.graph = opts.graph
   }
 
-  evaluate(){
+  evaluate(agreementContainer = null){
+    // either this proxy has run before,
+    // then we return the same as before
+    if(this.evaluatedSequence){
+      const joined = this.evaluatedSequence.map(v => v.value).join(' ')
+      console.log('----->', joined)
+      return Promise.resolve({
+        value: joined,
+        agreement: undefined,
+      })
+    }
+
+    // or not, then it behaves like a macro
     const next = this.graph.pickNextContainer(this)
-    console.log('PROXY to', next)
-    return Promise.resolve(next.evaluatedValue)
+    const mySeq = []
+    return this.graph.recursiveSteps(next, agreementContainer, mySeq).then(seq => {
+      this.evaluatedSequence = seq;
+      return seq
+    })
+  }
+
+  reset(){
+    this.evaluatedSequence = null
   }
 
   normalize(){

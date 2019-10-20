@@ -24,6 +24,10 @@ export default class ContainerNode extends Node {
     this.evaluatedValue = evValue
   }
 
+  reset(){
+    this.evaluatedValue = null
+  }
+
   evaluate() {
     return new Promise(resolve => {
       resolve(this.value)
