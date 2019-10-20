@@ -40,6 +40,7 @@ function _getAgreement(rawFlags){
   const agreement = {m:false, f:false, s:false, p:false}
 
   flags.forEach(flag => {
+    if(flag === '*') return
     agreement[flag] = true
   })
 
@@ -54,13 +55,23 @@ function _getAgreement(rawFlags){
     }
   }
 
+  if(flags[0] === '*'){
+    agreement.m = true
+    agreement.f = true
+  }
+
+  if(flags[1] === '*'){
+    agreement.s = true
+    agreement.p = true
+  }
+
   return agreement
 }
 
 function _getValues(rawValues, agreement){
   const possibleValues = rawValues.split(',').map(v => v.trim())
   const values = {}
-  //possibleValues.
+  
   return values
 }
 

@@ -34,14 +34,30 @@ describe('Agreement utils', () => {
       ['fs', { m: false, f: true, s: true, p: false }],
       ['mp', { m: true, f: false, s: false, p: true }],
       ['fp', { m: false, f: true, s: false, p: true }],
+      ['m', {m: true, f: false, s: true, p: true}],
+      ['f', {m: false, f: true, s: true, p: true}],
       ['s', {m: true, f: true, s: true, p: false}],
       ['p', {m: true, f: true, s: false, p: true}],
-      ['f', {m: false, f: true, s: true, p: true}],
-      ['m', {m: true, f: false, s: true, p: true}],
+
+      ['m*', {m:true, f:false, s:true, p:true}],
+      ['*p', {m:true, f:true, s:false, p:true}]
     ])('%s', (rawFlags, expectedAgreement) => {
       expect(
         _getAgreement(rawFlags)
       ).toEqual(expectedAgreement)
     })
   })
+
+  describe('_getValues', () => {
+    test.each([
+      ['mot', {m:true, f:false, s:true, p:false}, {ms:'mot'}],
+      ['mots', {m:true, f:false, s:false, p:true}, {mp:'mots'}],
+      ['mot, mots', {m: true, f: false, s: true, p: true}, {ms: 'mot', mp: 'mots'}],
+      ['beau, belle', {m: true, f: true, s: true, p: false}, {ms: 'mot', mp: 'mots'}],
+      ['beau, belle, beaux, belles', {m: true, f: true, s: true, p: true}, {ms: 'mot', mp: 'mots'}],
+      ['deux', {m:true, f:true, s:false, p:true}, {mp:'deux', fp:'deux'}]
+    ])('%s %p', () => {
+
+    })
+  }) 
 })
