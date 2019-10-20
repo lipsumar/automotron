@@ -33,11 +33,13 @@
       <button @click="$router.push('/')">&lt;&lt;</button>
       <button @click="run">run</button>
       <button @click="newGraph()" v-if="user">new</button>
-      <button @click="save()" v-if="user && user._id===graphObj.userId">save</button>
-      <label style="margin-right:0.3em" v-if="user && user._id===graphObj.userId">
-        <input type="checkbox" v-model="autosaveEnabled"> autosave
-      </label>
-      <button @click="fork()" v-if="user && user._id!==graphObj.userId">fork</button>
+      <template v-if="user && (user._id===graphObj.userId || !graphObj.userId)">
+        <button @click="save()">save</button>
+        <label style="margin-right:0.3em" v-if="user && user._id===graphObj.userId">
+          <input type="checkbox" v-model="autosaveEnabled"> autosave
+        </label>
+      </template>
+      <button @click="fork()" v-if="user && typeof graphObj.userId != 'undefined' && user._id!==graphObj.userId">fork</button>
       <button @click="undo" :disabled="!hasUndo" v-if="user">←</button>
       <button @click="redo" :disabled="!hasRedo" v-if="user">→</button>
       <router-link to="/login" v-if="!user">Login</router-link>
