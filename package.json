@@ -8,7 +8,7 @@
     "dev": "parcel index.html",
     "dev-server": "nodemon server/ --watch server",
     "build": "parcel build index.html -d ~/dev/lipsumar.io/automotron/public/ --no-minify && cp -r ./server ~/dev/lipsumar.io/automotron/ && cp package.json ~/dev/lipsumar.io/automotron/",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "spark-compil": "webpack-cli --entry ./compile-lib/entry-spark.js --output dist/spark.js --mode none"
   },
   "keywords": [],
@@ -45,6 +45,7 @@
     "@vue/component-compiler-utils": "^3.0.0",
     "cssnano": "^4.1.10",
     "eslint": "^5.16.0",
+    "jest": "^24.9.0",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.7"
