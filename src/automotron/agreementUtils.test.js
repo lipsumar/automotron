@@ -1,6 +1,8 @@
 /* global describe,test,expect */
 const {
   parse,
+  getFlags,
+  getMatchingValues,
   _parseParts,
   _getAgreement,
   _getValues
@@ -19,7 +21,9 @@ describe('Agreement utils', () => {
       ['repas(m*)', { ms: 'repas', mp: 'repas' }, { m: true, f: false, s: true, p: true }],
       ['[mot, mots](m)', { ms: 'mot', mp: 'mots' }, { m: true, f: false, s: true, p: true }],
       ['[beau, belle](s)', { ms: 'beau', fs: 'belle' }, { m: true, f: true, s: true, p: false }],
-      //['pomme', {}]
+      ['pomme', { '**': 'pomme' }, { m: true, f: true, s: true, p: true }],
+      ['[beau, belle, beaux, belles]', { ms: 'beau', fs: 'belle', mp: 'beaux', fp: 'belles' }, { m: true, f: true, s: true, p: true }],
+      ['', { '**': '' }, { m: true, f: true, s: true, p: true }]
     ])('%s', (str, expectedValues, expectedAgreement) => {
       const { values, agreement } = parse(str)
       expect(values).toEqual(expectedValues)
@@ -35,7 +39,8 @@ describe('Agreement utils', () => {
       ['deux(*p)', 'deux', '*p'],
       ['repas(m*)', 'repas', 'm*'],
       ['[mot, mots](m)', 'mot, mots', 'm'],
-      ['[beau, belle](s)', 'beau, belle', 's']
+      ['[beau, belle](s)', 'beau, belle', 's'],
+      ['[beau, belle, beaux, belles]', 'beau, belle, beaux, belles', '**']
     ])('%s', (str, expectedValues, expectedRawFlags) => {
       const { rawValues, rawFlags } = _parseParts(str)
       expect(rawValues).toBe(expectedValues)
@@ -74,6 +79,48 @@ describe('Agreement utils', () => {
     ])('%s %p', (str, agreement, expectedValues) => {
       expect(
         _getValues(str, agreement)
+      ).toEqual(expectedValues)
+    })
+  })
+
+  describe('getFlags', () => {
+    test.each([
+      [{ m: true, f: false, s: true, p: false }, ['ms']],
+      [{ m: false, f: true, s: true, p: false }, ['fs']],
+      [{ m: true, f: false, s: false, p: true }, ['mp']],
+      [{ m: false, f: true, s: false, p: true }, ['fp']],
+      [{ m: true, f: true, s: true, p: false }, ['ms', 'fs']],
+      [{ m: true, f: true, s: false, p: true }, ['mp', 'fp']],
+      [{ m: true, f: false, s: true, p: true }, ['ms', 'mp']],
+      [{ m: false, f: true, s: true, p: true }, ['fs', 'fp']],
+      [{ m: true, f: true, s: true, p: true }, ['ms', 'fs', 'mp', 'fp', '**']],
+    ])('%p', (agreement, expectedFlags) => {
+      expect(
+        getFlags(agreement)
+      ).toEqual(expectedFlags)
+    })
+  })
+
+  describe('getMatchingValues', () => {
+    test.each([
+      ['[un, une](s)', 'ms', { ms: 'un' }],
+      ['[un, une](s)', '*s', { ms: 'un', fs: 'une' }],
+      ['[beau, belle](s)', 'ms', { ms: 'beau' }],
+      ['[beau, belle](s)', 'fs', { fs: 'belle' }],
+      ['[beau, belle](s)', '*s', { ms: 'beau', fs: 'belle' }],
+      ['[beau, belle](s)', '**', { ms: 'beau', fs: 'belle' }],
+      ['[beau, belle, beaux, belles]', 'ms', { ms: 'beau' }],
+      ['[beau, belle, beaux, belles]', 'fs', { fs: 'belle' }],
+      ['[beau, belle, beaux, belles]', 'mp', { mp: 'beaux' }],
+      ['[beau, belle, beaux, belles]', 'fp', { fp: 'belles' }],
+      ['[beau, belle, beaux, belles]', 'm*', { ms: 'beau', mp: 'beaux' }],
+      ['[beau, belle, beaux, belles]', 'f*', { fs: 'belle', fp: 'belles' }],
+      ['[beau, belle, beaux, belles]', '*p', { mp: 'beaux', fp: 'belles' }],
+      ['[beau, belle, beaux, belles]', '*s', { ms: 'beau', fs: 'belle' }],
+      ['', '**', { '**': '' }]
+    ])('%s aggree with %s', (raw, agreementFlag, expectedValues) => {
+      expect(
+        getMatchingValues(parse(raw), _getAgreement(agreementFlag))
       ).toEqual(expectedValues)
     })
   })

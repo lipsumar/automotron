@@ -1,4 +1,6 @@
 import Node from "./Node";
+import agreementUtils from './agreementUtils'
+import sample from 'lodash.sample'
 
 export default class ContainerNode extends Node {
   constructor(opts) {
@@ -10,14 +12,11 @@ export default class ContainerNode extends Node {
 
   setValue(value) {
     if(typeof value === 'string'){
-      this.value = {
-        value,
-        agreement: { m: true, f: true, s: true, p: true }
-      }
+      this.value = agreementUtils.parse(value)
+      this.value.raw = value
     }else{
-      this.value = value
+      this.value = value 
     }
-    
   }
 
   setEvaluatedValue(evValue){
@@ -28,9 +27,15 @@ export default class ContainerNode extends Node {
     this.evaluatedValue = null
   }
 
-  evaluate() {
-    return new Promise(resolve => {
-      resolve(this.value)
-    })
+  evaluate(agreement) {
+    const possibleValues = agreementUtils.getMatchingValues(this.value, agreement)
+
+    const pickedFlag = sample(Object.keys(possibleValues))
+    const evaluatedValue = {
+      value: possibleValues[pickedFlag],
+      agreement: agreementUtils._getAgreement(pickedFlag)
+    }
+
+    return Promise.resolve(evaluatedValue)
   }
 }
