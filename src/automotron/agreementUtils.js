@@ -1,3 +1,5 @@
+import sample from 'lodash.sample'
+
 const regexParts = /\[?(.*?)\]?\(([a-z\*]{1,2})\)$/
 
 /**
@@ -164,13 +166,24 @@ function getMatchingValues(value, agreement) {
   if (typeof matching['**'] === 'string') {
     return { '**': matching['**'] }
   }
-  return matching
+  return Object.keys(matching).length > 0 ? matching : false
+}
+
+function getRandomMatchingValue(value, agreement) {
+  const possibleValues = getMatchingValues(value, agreement)
+  if(possibleValues === false) return false
+  const pickedFlag = sample(Object.keys(possibleValues))
+  return {
+    value: possibleValues[pickedFlag],
+    agreement: _getAgreement(pickedFlag)
+  }
 }
 
 module.exports = {
   parse,
   getFlags,
   getMatchingValues,
+  getRandomMatchingValue,
 
   // only exported for testing
   _parseParts,

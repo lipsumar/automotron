@@ -117,7 +117,9 @@ describe('Agreement utils', () => {
       ['[beau, belle, beaux, belles]', 'f*', { fs: 'belle', fp: 'belles' }],
       ['[beau, belle, beaux, belles]', '*p', { mp: 'beaux', fp: 'belles' }],
       ['[beau, belle, beaux, belles]', '*s', { ms: 'beau', fs: 'belle' }],
-      ['', '**', { '**': '' }]
+      ['', '**', { '**': '' }],
+      ['un(ms)', 'mp', false],
+      ['[un, une](s)', 'p', false]
     ])('%s aggree with %s', (raw, agreementFlag, expectedValues) => {
       expect(
         getMatchingValues(parse(raw), _getAgreement(agreementFlag))

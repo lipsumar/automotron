@@ -136,8 +136,8 @@ export default class AutomotronGraph {
     return this.recursiveSteps(this.startContainer);
   }
 
-  recursiveSteps(container, agreementContainer = null, seq = null) {
-    return this.step(container, agreementContainer, seq).then(({ nextContainer, seq }) => {
+  recursiveSteps(container, agreement = null, seq = null) {
+    return this.step(container, agreement, seq).then(({ nextContainer, seq }) => {
       if (nextContainer) {
         return this.recursiveSteps(nextContainer, null, seq);
       } else {
@@ -146,7 +146,7 @@ export default class AutomotronGraph {
     })
   }
 
-  step(container, forceAgreementContainer = null, seq = null) {
+  step(container, agreement = null, seq = null) {
     console.log('STEP ' + container)
 
     this.stepsCount++
@@ -155,7 +155,7 @@ export default class AutomotronGraph {
       return
     }
 
-    return this.evaluateContainer(container, forceAgreementContainer)
+    return this.evaluateContainer(container, agreement)
       .then(evaluatedValue => {
         if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
@@ -178,19 +178,20 @@ export default class AutomotronGraph {
       })
   }
 
-  evaluateContainer(container, forceAgreementContainer = null) {
+  evaluateContainer(container, withAgreement = null) {
     const agreementContainer = this.getAgreementContainer(container)
-    const agreement = agreementContainer 
+    const agreement = withAgreement || (agreementContainer 
       ? agreementContainer.evaluatedValue.agreement 
-      : { m: true, f: true, s: true, p: true };
-    //const generator = this.getContainerGenerator(container)
-    /*if (generator) {
-      
-      const agreementContainer = forceAgreementContainer || this.getAgreementContainer(container)
-      console.log('  using generator instead => '+ generator+ '\n  agree with ' + (agreementContainer || 'none'))
-      //console.log('  with agreement ', agreementContainer.agreement, 'forced?'+(forceAgreementContainer?'yes':'no')) 
-      return generator.evaluate(agreementContainer || null, this.previousNode)
-    }*/
+      : { m: true, f: true, s: true, p: true });
+
+    console.log('  using agreement', agreement)
+
+    const generator = this.getContainerGenerator(container)
+    if(generator){
+      console.log('  using generator instead => '+ generator)
+      return generator.evaluate(agreement)
+    }
+
     console.log('no generator', agreement)
     return container.evaluate(agreement)
   }
