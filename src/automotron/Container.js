@@ -14,7 +14,12 @@ export default class ContainerNode extends Node {
       this.value = agreementUtils.parse(value)
       this.value.raw = value
     }else{
-      this.value = value 
+      // backward compatibility for old style agreement
+      if(typeof value.raw !== "string"){
+        this.setValue(value.value)
+      } else {
+        this.value = value 
+      }
     }
   }
 
