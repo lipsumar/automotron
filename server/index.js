@@ -19,7 +19,16 @@ const path = require('path');
 const PUBLIC_DIR = process.env.PUBLIC_DIR || 'public'
 const indexHtml = require('fs').readFileSync(path.join(__dirname, `../${PUBLIC_DIR}/index.html`)).toString();
 
-app.use(express.static(path.join(__dirname,`../${PUBLIC_DIR}`)));
+app.use(express.static(path.join(__dirname,`../${PUBLIC_DIR}`), {
+  etag: false,
+  setHeaders: (res, path) => {
+    if (path.match(/index\.html$/)) {
+      res.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+      res.setHeader('Expires', new Date(Date.now() - 2592000000).toUTCString())
+      res.setHeader('Last-Modified', new Date(Date.now() - 2592000000).toUTCString())
+    }
+  }
+}));
 
 const db = mongoose.connection;
 db.once('open', () => {
