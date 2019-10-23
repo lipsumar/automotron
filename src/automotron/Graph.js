@@ -37,7 +37,11 @@ export default class AutomotronGraph {
     state.links.forEach(link => {
       const from = this.getNode(link.from.nodeId)
       const to = this.getNode(link.to.nodeId)
-      if (link.type === 'agreement') {
+      if(!from || !to){
+        console.log('abort link in graph')
+        return
+      }
+      if(link.type === 'agreement'){
         this.createAgreementLink(from, to)
       } else {
         this.createLink(from, to, {

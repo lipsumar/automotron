@@ -7,7 +7,8 @@
     "start": "node server/index.js",
     "dev": "parcel index.html",
     "dev-server": "nodemon server/ --watch server",
-    "build": "parcel build index.html -d ~/dev/lipsumar.io/automotron/public/ --no-minify && cp -r ./server ~/dev/lipsumar.io/automotron/ && cp package.json ~/dev/lipsumar.io/automotron/",
+    "build-local": "parcel build index.html -d ~/dev/lipsumar.io/automotron/public/ --no-minify && cp -r ./server ~/dev/lipsumar.io/automotron/ && cp package.json ~/dev/lipsumar.io/automotron/",
+    "build": "parcel build index.html",
     "test": "jest",
     "spark-compil": "webpack-cli --entry ./compile-lib/entry-spark.js --output dist/spark.js --mode none"
   },
@@ -15,6 +16,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/browser": "^5.7.1",
+    "@sentry/integrations": "^5.7.1",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -27,7 +30,7 @@
     "lodash.flatten": "^4.4.0",
     "lodash.sample": "^4.2.1",
     "md5": "^2.2.1",
-    "mongoose": "^5.7.3",
+    "mongoose": "^5.7.5",
     "nodemon": "^1.19.3",
     "parcel": "^1.12.3",
     "passport": "^0.4.0",
