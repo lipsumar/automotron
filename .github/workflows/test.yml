@@ -1,4 +1,4 @@
-name: Node CI
+name: Test
 
 on: [push]
 
@@ -17,3 +17,8 @@ jobs:
         npm test
       env:
         CI: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      
