@@ -27,11 +27,11 @@ export default class AutomotronGraph {
         this.createContainer(node)
       } else if (node.type === 'generator') {
         this.createGenerator(node)
-      } else if(node.type==='operator'){
+      } else if (node.type === 'operator') {
         this.createOperator(node)
       }
 
-      this.nextNodeId = node.id >= this.nextNodeId ? node.id+1 : this.nextNodeId
+      this.nextNodeId = node.id >= this.nextNodeId ? node.id + 1 : this.nextNodeId
     })
 
     state.links.forEach(link => {
@@ -43,17 +43,17 @@ export default class AutomotronGraph {
       }
       if(link.type === 'agreement'){
         this.createAgreementLink(from, to)
-      }else{
+      } else {
         this.createLink(from, to, {
           fromOutlet: link.from.outlet,
           toInlet: link.to.inlet
         })
       }
-      
+
     })
   }
 
-  getNewNodeId(){
+  getNewNodeId() {
     return this.nextNodeId++
   }
 
@@ -70,14 +70,14 @@ export default class AutomotronGraph {
 
   createGenerator(opts) {
     let generator;
-    if(opts.generator === 'list'){
+    if (opts.generator === 'list') {
       generator = new List(opts)
-    }else if(opts.generator === 'macro'){
-      generator = new Macro({...opts, graph:this})
-    } else if(opts.generator === 'proxy'){
-      generator = new Proxy({...opts, graph:this})
+    } else if (opts.generator === 'macro') {
+      generator = new Macro({ ...opts, graph: this })
+    } else if (opts.generator === 'proxy') {
+      generator = new Proxy({ ...opts, graph: this })
     }
-    
+
     generator.id = opts.id || this.getNewNodeId()
     this.nodes.push(generator)
     return generator
@@ -85,27 +85,27 @@ export default class AutomotronGraph {
 
   createOperator(opts) {
     let operator;
-    if(opts.operator === 'split'){
+    if (opts.operator === 'split') {
       operator = new Split(opts)
-    } else if(opts.operator=== 'loop'){
-      operator = new Loop({...opts, graph:this})
-    } else if(opts.operator === 'tag'){
+    } else if (opts.operator === 'loop') {
+      operator = new Loop({ ...opts, graph: this })
+    } else if (opts.operator === 'tag') {
       operator = new Tag(opts)
-    } else if(opts.operator === 'logic'){
+    } else if (opts.operator === 'logic') {
       operator = new Logic(opts)
     }
-    
+
     operator.id = opts.id || this.getNewNodeId()
     this.nodes.push(operator)
     return operator
   }
 
-  removeNode(id){
+  removeNode(id) {
     const index = this.nodes.findIndex(n => n.id === id)
-    if(index === -1){
+    if (index === -1) {
       throw new Error(`Can't remove node #${id}: no such node`)
     }
-    if(id === this.startContainer.id){
+    if (id === this.startContainer.id) {
       throw new Error(`Can't remove start node`)
     }
     this.nodes.splice(index, 1)
@@ -123,26 +123,26 @@ export default class AutomotronGraph {
   }
 
   createAgreementLink(from, to) {
-    const link = new Link({ from, to, type: 'agreement', fromOutlet: 'agreement', toInlet:'agreement' })
+    const link = new Link({ from, to, type: 'agreement', fromOutlet: 'agreement', toInlet: 'agreement' })
     this.links.push(link)
     return link
   }
 
-  reset(){
+  reset() {
     this.sequence = []
     this.nodes.forEach(n => n.reset())
     this.stepsCount = 0
     this.previousNode = null
   }
 
-  run(){
+  run() {
     this.reset();
     return this.recursiveSteps(this.startContainer);
   }
 
-  recursiveSteps(container, agreementContainer=null, seq=null){
-    return this.step(container, agreementContainer, seq).then(({nextContainer, seq}) => {
-      if(nextContainer){
+  recursiveSteps(container, agreement = null, seq = null) {
+    return this.step(container, agreement, seq).then(({ nextContainer, seq }) => {
+      if (nextContainer) {
         return this.recursiveSteps(nextContainer, null, seq);
       } else {
         return seq || this.sequence
@@ -150,26 +150,26 @@ export default class AutomotronGraph {
     })
   }
 
-  step(container, forceAgreementContainer = null, seq = null){
-    console.log('STEP '+container)
+  step(container, agreement = null, seq = null) {
+    console.log('STEP ' + container)
 
     this.stepsCount++
-    if(this.stepsCount>1000){
+    if (this.stepsCount > 1000) {
       console.log('inifnite loop')
       return
     }
 
-    return this.evaluateContainer(container, forceAgreementContainer)
+    return this.evaluateContainer(container, agreement)
       .then(evaluatedValue => {
         if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
-          console.log('  SET '+container, '\n  --> ', evaluatedValue.value, '\n      ', JSON.stringify(evaluatedValue.agreement))
+          console.log('  SET ' + container, '\n  --> ', evaluatedValue.value, '\n      ', JSON.stringify(evaluatedValue.agreement))
           this.sequence.push(evaluatedValue)
-          if(seq) seq.push(evaluatedValue)
+          if (seq) seq.push(evaluatedValue)
         }
-        if(evaluatedValue instanceof Array){
+        if (evaluatedValue instanceof Array) {
           const joined = evaluatedValue.map(v => v.value).join(' ')
-          console.log('  SET '+container, joined)
+          console.log('  SET ' + container, joined)
           container.setEvaluatedValue({
             value: joined
           })
@@ -182,39 +182,43 @@ export default class AutomotronGraph {
       })
   }
 
-  evaluateContainer(container, forceAgreementContainer = null) {
+  evaluateContainer(container, withAgreement = null) {
+    const agreementContainer = this.getAgreementContainer(container)
+    const agreement = withAgreement || (agreementContainer 
+      ? agreementContainer.evaluatedValue.agreement 
+      : { m: true, f: true, s: true, p: true });
+
+    console.log('  using agreement', agreement)
 
     const generator = this.getContainerGenerator(container)
-    if (generator) {
-      
-      const agreementContainer = forceAgreementContainer || this.getAgreementContainer(container)
-      console.log('  using generator instead => '+ generator+ '\n  agree with ' + (agreementContainer || 'none'))
-      //console.log('  with agreement ', agreementContainer.agreement, 'forced?'+(forceAgreementContainer?'yes':'no')) 
-      return generator.evaluate(agreementContainer || null, this.previousNode)
+    if(generator){
+      console.log('  using generator instead => '+ generator)
+      return generator.evaluate(agreement)
     }
-    console.log('no generator')
-    return container.evaluate()
+
+    console.log('no generator', agreement)
+    return container.evaluate(agreement)
   }
 
   pickNextContainer(container) {
-    let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet==='inlet')
+    let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet === 'inlet')
     if (links.length === 0) return null
 
     if (container instanceof Operator) {
-      const {nextOutlet} = container.evaluateNextOutlet(this.sequence)
-      
+      const { nextOutlet } = container.evaluateNextOutlet(this.sequence)
+
       console.log('===>', nextOutlet, links)
       links = links.filter(l => l.fromOutlet === nextOutlet)
     }
 
-    if(container.pickNextLink){
+    if (container.pickNextLink) {
       return container.pickNextLink(links).to
     }
     return sample(links).to
   }
 
   getContainerGenerator(container) {
-    const links = this.links.filter(l => l.to.id === container.id && l.from instanceof Generator && l.toInlet==='generator')
+    const links = this.links.filter(l => l.to.id === container.id && l.from instanceof Generator && l.toInlet === 'generator')
     if (links.length === 0) return null
     return sample(links).from
   }
@@ -229,7 +233,7 @@ export default class AutomotronGraph {
     this.startContainer = container
   }
 
-  normalize(){
+  normalize() {
     return {
       nodes: this.nodes.map(n => n.normalize()),
       links: this.links.map(l => l.normalize()),

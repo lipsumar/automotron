@@ -8,7 +8,7 @@ export default class Proxy extends Generator{
     this.graph = opts.graph
   }
 
-  evaluate(agreementContainer = null){
+  evaluate(agreement){
     // either this proxy has run before,
     // then we return the same as before
     if(this.evaluatedSequence){
@@ -23,7 +23,7 @@ export default class Proxy extends Generator{
     // or not, then it behaves like a macro
     const next = this.graph.pickNextContainer(this)
     const mySeq = []
-    return this.graph.recursiveSteps(next, agreementContainer, mySeq).then(seq => {
+    return this.graph.recursiveSteps(next, agreement, mySeq).then(seq => {
       this.evaluatedSequence = seq;
       return seq
     })

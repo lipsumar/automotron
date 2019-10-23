@@ -1,3 +1,5 @@
+import sample from 'lodash.sample'
+
 const regexParts = /\[?(.*?)\]?\(([a-z\*]{1,2})\)$/
 
 /**
@@ -7,6 +9,12 @@ const regexParts = /\[?(.*?)\]?\(([a-z\*]{1,2})\)$/
  */
 function parse(str) {
   const { rawValues, rawFlags } = _parseParts(str);
+  if (!rawFlags) {
+    return {
+      agreement: { m: true, f: true, s: true, p: true },
+      values: { '**': rawValues }
+    }
+  }
   const agreement = _getAgreement(rawFlags)
   const values = _getValues(rawValues, agreement)
   return { agreement, values }
@@ -23,11 +31,22 @@ function parse(str) {
    * @param {str} str 
    */
 function _parseParts(str) {
-  const m = regexParts.exec(str);
-  return {
-    rawValues: m[1],
-    rawFlags: m[2]
+  if (str[0] === '[' && str[str.length - 1] === ']') {
+    str += '(**)'
   }
+  try {
+    const m = regexParts.exec(str);
+    return {
+      rawValues: m[1],
+      rawFlags: m[2]
+    }
+  } catch (err) {
+    return {
+      rawValues: str,
+      rawFlags: null
+    }
+  }
+
 }
 
 /**
@@ -114,8 +133,57 @@ function _getValuesForSameGenderOrNumber(possibleValues, agreement) {
   return values
 }
 
+function getFlags(agreement) {
+  const lettersTrue = Object.keys(agreement).filter(letter => agreement[letter])
+
+  if (lettersTrue.length === 2) {
+    return [(agreement.m ? 'm' : 'f') + (agreement.s ? 's' : 'p')]
+  }
+
+  if (lettersTrue.length === 4) {
+    return ['ms', 'fs', 'mp', 'fp', '**']
+  }
+
+  if (agreement.m && agreement.f) {
+    const number = agreement.s ? 's' : 'p'
+    return [`m${number}`, `f${number}`]
+  } else {
+    const gender = agreement.m ? 'm' : 'f'
+    return [`${gender}s`, `${gender}p`]
+  }
+}
+
+function getMatchingValues(value, agreement) {
+  const possibleFlags = getFlags(agreement)
+  const matching = possibleFlags.reduce((acc, flag) => {
+    const val = typeof value.values['**'] === 'string' ? value.values['**'] : value.values[flag]
+    if (typeof val === 'string') {
+      acc[flag] = val
+    }
+    return acc
+  }, {})
+
+  if (typeof matching['**'] === 'string') {
+    return { '**': matching['**'] }
+  }
+  return Object.keys(matching).length > 0 ? matching : false
+}
+
+function getRandomMatchingValue(value, agreement) {
+  const possibleValues = getMatchingValues(value, agreement)
+  if(possibleValues === false) return false
+  const pickedFlag = sample(Object.keys(possibleValues))
+  return {
+    value: possibleValues[pickedFlag],
+    agreement: _getAgreement(pickedFlag)
+  }
+}
+
 module.exports = {
   parse,
+  getFlags,
+  getMatchingValues,
+  getRandomMatchingValue,
 
   // only exported for testing
   _parseParts,

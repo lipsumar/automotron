@@ -1,4 +1,5 @@
 import Node from "./Node";
+import agreementUtils from './agreementUtils'
 
 export default class ContainerNode extends Node {
   constructor(opts) {
@@ -10,14 +11,16 @@ export default class ContainerNode extends Node {
 
   setValue(value) {
     if(typeof value === 'string'){
-      this.value = {
-        value,
-        agreement: { m: true, f: true, s: true, p: true }
-      }
+      this.value = agreementUtils.parse(value)
+      this.value.raw = value
     }else{
-      this.value = value
+      // backward compatibility for old style agreement
+      if(value && typeof value.raw !== "string"){
+        this.setValue(value.value)
+      } else {
+        this.value = value 
+      }
     }
-    
   }
 
   setEvaluatedValue(evValue){
@@ -28,9 +31,9 @@ export default class ContainerNode extends Node {
     this.evaluatedValue = null
   }
 
-  evaluate() {
-    return new Promise(resolve => {
-      resolve(this.value)
-    })
+  evaluate(agreement) {
+    return Promise.resolve(
+      agreementUtils.getRandomMatchingValue(this.value, agreement)
+    )
   }
 }

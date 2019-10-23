@@ -8,11 +8,11 @@ export default class Macro extends Generator{
     this.graph = opts.graph
   }
 
-  evaluate(agreementContainer = null){
+  evaluate(agreement){
     const next = this.graph.pickNextContainer(this)
     console.log('NEXT would be', next)
     const mySeq = []
-    return this.graph.recursiveSteps(next, agreementContainer, mySeq).then(seq => {
+    return this.graph.recursiveSteps(next, agreement, mySeq).then(seq => {
       console.log('Macro end=>', mySeq)
       return seq
     })

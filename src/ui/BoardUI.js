@@ -62,7 +62,7 @@ export default class BoardUI extends EventEmitter {
     const container = new ContainerNodeUI({
       stage: this.stage,
       layer: this.nodeLayer,
-      value: node.value.value,
+      value: node.value.raw,
       pos: node.pos,
       stroke: this.graph.startContainer.id === node.id ? 'green' : '#999'
     })
