@@ -6,6 +6,7 @@
       <div class="hero__buttons">
         <div class="hero__welcome" v-if="user">Welcome @{{user.username}}</div>
         <router-link :to="`/graph`" class="btn btn--primary" v-if="user">New generator</router-link>
+        <a href="https://github.com/lipsumar/automotron/wiki" target="_blank" class="btn ">Documentation</a>
       </div>
     </div>
     <div class="generator-list">
