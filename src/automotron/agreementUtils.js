@@ -1,4 +1,4 @@
-import sample from 'lodash.sample'
+const sample = require('lodash.sample');
 
 const regexParts = /\[?(.*?)\]?\(([a-z\*]{1,2})\)$/
 
