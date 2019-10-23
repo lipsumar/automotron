@@ -15,7 +15,7 @@ export default class ContainerNode extends Node {
       this.value.raw = value
     }else{
       // backward compatibility for old style agreement
-      if(typeof value.raw !== "string"){
+      if(value && typeof value.raw !== "string"){
         this.setValue(value.value)
       } else {
         this.value = value 
