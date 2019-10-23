@@ -49,7 +49,11 @@ export default class BoardUI extends EventEmitter {
     })
 
     graph.links.forEach(link => {
-      this.createLink(link)
+      try{
+        this.createLink(link)
+      }catch(e) {
+        console.log('create link aborted', e)
+      }
     })
   }
 
