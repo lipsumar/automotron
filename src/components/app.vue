@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import * as Sentry from '@sentry/browser';
 export default {
   data:function(){
     return {
@@ -15,6 +16,9 @@ export default {
     this.$api.loggedIn().then(user => {
       this.$store.commit('loggedIn', user);
       this.ready = true
+      Sentry.configureScope(function(scope) {
+        scope.setUser({username: user.username, id: user._id});
+      });
     })
 
     this.$store.subscribe((mutation, state) => {
