@@ -25,7 +25,9 @@
 <script>
 export default {
   created() {
-    this.$store.dispatch("fetchGeneratorList");
+    if(this.user){
+      this.$store.dispatch("fetchGeneratorList");
+    }
   },
   computed: {
     generators() {
