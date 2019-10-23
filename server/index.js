@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const md5 = require('md5');
 const cors = require('cors')
 const expressSession = require('express-session');
+const MongoStore = require('connect-mongo')(expressSession)
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
@@ -58,7 +59,8 @@ db.once('open', () => {
   app.use(expressSession({ 
     secret: process.env.SESSION_SECRET, 
     resave: false, 
-    saveUninitialized: false 
+    saveUninitialized: false,
+    store: new MongoStore({ mongooseConnection: db })
   }));
   app.use(passport.initialize());
   app.use(passport.session());
