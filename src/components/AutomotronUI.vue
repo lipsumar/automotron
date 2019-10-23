@@ -138,6 +138,7 @@ export default {
       this.board.on("contextmenu", payload => {
         this.contextMenu = payload;
       });
+      this.run()
     },
     run() {
       this.graph.run().then(sequence => {
