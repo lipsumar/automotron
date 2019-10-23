@@ -16,5 +16,8 @@ jobs:
         username: ${{ secrets.DEPLOY_USER }}
         key: ${{ secrets.DEPLOY_KEY }}
         port: 22
-        script: whoami
+        script: |
+          cd automotron
+          git pull
+          docker-compose up --build -d
 
