@@ -16,9 +16,11 @@ export default {
     this.$api.loggedIn().then(user => {
       this.$store.commit('loggedIn', user);
       this.ready = true
-      Sentry.configureScope(function(scope) {
-        scope.setUser({username: user.username, id: user._id});
-      });
+      if(!window.location.href.includes('localhost')){
+        Sentry.configureScope(function(scope) {
+          scope.setUser({username: user.username, id: user._id});
+        });
+      }
     })
 
     this.$store.subscribe((mutation, state) => {
