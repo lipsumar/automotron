@@ -125,4 +125,5 @@ form button, .btn{
   width:400px;
   box-sizing: border-box;
   padding: 10px;
+  overflow-y: auto;
 }
