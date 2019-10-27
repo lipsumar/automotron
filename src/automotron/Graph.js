@@ -10,6 +10,7 @@ import Macro from "./Macro";
 import Proxy from "./Proxy";
 import Tag from './Tag';
 import Logic from './Logic';
+import GraphRuntimeError from './errors/GraphRuntimeError'
 
 export default class AutomotronGraph {
   constructor(state) {
@@ -189,9 +190,16 @@ export default class AutomotronGraph {
 
   evaluateContainer(container, withAgreement = null) {
     const agreementContainer = this.getAgreementContainer(container)
-    const agreement = withAgreement || (agreementContainer 
-      ? agreementContainer.evaluatedValue.agreement 
-      : { m: true, f: true, s: true, p: true });
+    let agreement = { m: true, f: true, s: true, p: true }; // default: agree with anything
+    if(withAgreement){
+      agreement = withAgreement;
+    } else if (agreementContainer) {
+      console.log('there is an agreement container', agreementContainer)
+      if(!agreementContainer.evaluatedValue){
+        throw new GraphRuntimeError('AGREEMENT_CONTAINER_NOT_EVALUATED', container)
+      }
+      agreement = agreementContainer.evaluatedValue.agreement 
+    }
 
     console.log('  using agreement', agreement)
 
@@ -230,6 +238,7 @@ export default class AutomotronGraph {
 
   getAgreementContainer(container) {
     const link = this.links.find(l => l.type === 'agreement' && l.from.id === container.id)
+    console.log('agreement link', link)
     if (!link) return null
     return link.to
   }

@@ -52,6 +52,12 @@
       <div class="output__body">
         <p v-html="outputText.split('\\n').join('<br>')" style="display:none"></p>
         <!-- <hr/> -->
+        <div class="graph-error" v-if="graphRuntimeError">
+          <div class="graph-error__message">Error: {{graphRuntimeError.message}}</div>
+          <div class="graph-error__extended-message">
+            {{graphRuntimeError.extendedMessage}}
+          </div>
+        </div>
         <p v-html="outputTextFixed.split('\\n').join('<br>')"></p>
       </div>
     </div>
@@ -65,6 +71,7 @@ import eventBus from "../eventBus.js";
 import UndoManager from "../commands/UndoManager.js";
 import frenchFixer from "../services/FrenchFixer"
 import debounce from 'lodash.debounce';
+import GraphRuntimeError from '../automotron/errors/GraphRuntimeError';
 
 export default {
   props: {
@@ -95,7 +102,8 @@ export default {
         { type: "operator", operator: "logic" },
       ],
       outputOpen: true,
-      autosaveEnabled: false
+      autosaveEnabled: false,
+      graphRuntimeError: null,
     };
   },
   methods: {
@@ -144,10 +152,21 @@ export default {
       this.run()
     },
     run() {
-      this.graph.run().then(sequence => {
-        console.log('OUTPUT SEQUENCE', sequence)
-        this.outputText = sequence.map(i => i.value).join(" ");
-      });
+      this.board.clearErrors()
+      this.graphRuntimeError = null
+      this.graph.run()
+        .then(sequence => {
+          console.log('OUTPUT SEQUENCE', sequence)
+          this.outputText = sequence.map(i => i.value).join(" ");
+        })
+        .catch(err => {
+          if(err instanceof GraphRuntimeError){
+            this.board.setError(err, err.node.id)
+            this.graphRuntimeError = err;
+            return
+          }
+          throw err;
+        })
     },
     save(){
       this.$emit('save', {

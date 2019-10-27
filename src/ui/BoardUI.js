@@ -288,6 +288,16 @@ export default class BoardUI extends EventEmitter {
     linkUI.line.destroy()
   }
 
+  setError(err, nodeId){
+    this.getNode(nodeId).setError(err)
+    this.stage.draw()
+  }
+
+  clearErrors(){
+    this.getNodes().forEach(node => node.setError(null))
+    this.stage.draw()
+  }
+
   buildStage(opts) {
     let drawingSelectZone = false
 

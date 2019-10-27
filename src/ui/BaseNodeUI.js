@@ -47,6 +47,16 @@ export default class BaseNodeUI extends EventEmitter{
     }
   }
 
+  setError(err){
+    if(err){
+      this.rect.stroke('#f00');
+      this.rect.strokeWidth(4);
+    }else{
+      this.rect.stroke(this.defaultStroke)
+      this.rect.strokeWidth(this.defaultStrokeWidth || 2);
+    }
+  }
+
   move(pos){
     this.pos = pos
     this.group.position(pos)
