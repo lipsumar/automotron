@@ -128,6 +128,11 @@ export default class AutomotronGraph {
     return link
   }
 
+  removeAgreementLink(from, to){
+    const i = this.links.findIndex(l => l.from.id === from.id && l.to.id === to.id && l.type === 'agreement')
+    this.links.splice(i, 1)
+  }
+
   reset() {
     this.sequence = []
     this.nodes.forEach(n => n.reset())

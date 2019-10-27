@@ -1,13 +1,22 @@
 import BaseCommand from "./BaseCommand";
+import functions from "./functions";
 
 export default class RemoveLinkCommand extends BaseCommand {
   execute() {
     const link = this.opts.link
     const from = link.from
     const to = link.to
-    this.graph.removeLink(from, to)
-    const uiLink = this.ui.getLink({ nodeId: from.id, outlet: link.fromOutlet }, { nodeId: to.id, inlet: link.toInlet })
-    this.ui.removeLink(uiLink)
+    functions.removeLink({
+      from:{ 
+        nodeId: from.id,
+        outlet: link.fromOutlet
+      },
+      to: { 
+        nodeId: to.id,
+        inlet: link.toInlet 
+      },
+      type: link.type
+    }, this)
     this.ui.stage.draw()
   }
 

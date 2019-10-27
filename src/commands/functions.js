@@ -72,8 +72,11 @@ export default {
   removeLink(opts, {graph,ui}){
     const from = graph.getNode(opts.from.nodeId)
     const to = graph.getNode(opts.to.nodeId)
-
-    graph.removeLink(from, to)
+    if(opts.type === 'agreement'){
+      graph.removeAgreementLink(from, to)
+    }else{
+      graph.removeLink(from, to)
+    }
     const linkUI = ui.getLink({ nodeId: from.id, outlet: opts.from.outlet }, { nodeId: to.id, inlet: opts.to.inlet })
     ui.removeLink(linkUI)
   }
