@@ -431,6 +431,7 @@ export default class BoardUI extends EventEmitter {
       } else {
         if(!this.moving){
           this.undoManager.execute('select', {nodeId: null})
+          this.emit('clickNothing')
         }
         
       }

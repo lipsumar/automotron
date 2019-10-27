@@ -138,6 +138,9 @@ export default {
       this.board.on("contextmenu", payload => {
         this.contextMenu = payload;
       });
+      this.board.on('clickNothing', () => {
+        this.contextMenu = null;
+      })
       this.run()
     },
     run() {
