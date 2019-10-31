@@ -2,13 +2,15 @@
 
 > A visual language to generate text
 
-Try it here: <http://automotron.lipsumar.io>
+_This is a work in progress_
+
+
 
 ![screenshot](screenshot.png)
 
-**DISCLAIMER**: This is a work in progress
-
-[Documentation en français :fr:](https://github.com/lipsumar/automotron/wiki/documentation)
+* Try it here: <http://automotron.lipsumar.io>
+* [Documentation en français :fr:](https://github.com/lipsumar/automotron/wiki/documentation)
+* [API documentation](https://github.com/lipsumar/automotron/wiki/API)
 
 
 ## What is the AUTOMOTRON ?
