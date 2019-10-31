@@ -59,6 +59,8 @@ function runGraph(id, format){
         return sequence.map(i => i.value).join(' ').replace(/\\n/g, '\n')
       }else if(format === 'json'){
         return sequence
+      }else if(format==='html'){
+        return sequence.map(i => i.value).join(' ').replace(/\\n/g, '<br>')
       }
     })
   })
