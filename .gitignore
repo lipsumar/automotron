@@ -5,3 +5,4 @@ dist/
 notes/
 .env
 data/
+server/automotron-graph.js

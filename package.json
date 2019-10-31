@@ -6,11 +6,12 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "parcel index.html",
-    "dev-server": "nodemon server/ --watch server",
+    "dev-server": "npm run build-automotron-for-node && nodemon server/ --watch server",
     "build-local": "parcel build index.html -d ~/dev/lipsumar.io/automotron/public/ --no-minify && cp -r ./server ~/dev/lipsumar.io/automotron/ && cp package.json ~/dev/lipsumar.io/automotron/",
-    "build": "parcel build index.html",
+    "build": "npm run build-automotron-for-node && parcel build index.html",
     "test": "jest",
-    "spark-compil": "webpack-cli --entry ./compile-lib/entry-spark.js --output dist/spark.js --mode none"
+    "spark-compil": "webpack-cli --entry ./compile-lib/entry-spark.js --output dist/spark.js --mode none",
+    "build-automotron-for-node": "webpack-cli --entry ./compile-lib/export-lib.js --output server/automotron-graph.js --mode development --config ./compile-lib/webpack.config.js"
   },
   "keywords": [],
   "author": "",
