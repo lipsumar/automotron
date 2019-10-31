@@ -3,6 +3,7 @@ const router = express.Router();
 const Graph = require('./models/graph');
 const ensureLoggedIn = require('./middlewares/ensureLoggedIn');
 const AutomotronGraph = require('./automotron-graph').default;
+const axios = require('axios');
 
 router.get(
   '/graphs', 
@@ -35,17 +36,33 @@ router.get(
   }
 )
 
-router.get('/graphs/:graphId/run', (req, res) => {
-  Graph.findOne({_id:req.params.graphId}).then(graph => {
-    const graphData = JSON.parse(graph.graphData)
-    const graphInstance = new AutomotronGraph(graphData.graph)
-    graphInstance.run().then(sequence => {
-      res.type('text').send(
-        sequence.map(i => i.value).join(' ').replace(/\\n/g, '\n')
-      )
-    })
+router.get('/graphs/:graphId/run/:format', (req, res) => {
+  runGraph(req.params.graphId, req.params.format).then(out => {
+    res.type(req.params.format).send(out)
   })
 })
+router.get('/graphs/:graphId/run', (req, res) => {
+  runGraph(req.params.graphId, 'text').then(out => {
+    res.type('text').send(out)
+  })
+})
+
+function runGraph(id, format){
+  return Graph.findOne({_id:id}).then(graph => {
+    const graphData = JSON.parse(graph.graphData)
+    const graphInstance = new AutomotronGraph(graphData.graph, {
+      apiBaseUrl: process.env.API_BASE_URL,
+      axios
+    })
+    return graphInstance.run().then(sequence => {
+      if(format === 'text'){
+        return sequence.map(i => i.value).join(' ').replace(/\\n/g, '\n')
+      }else if(format === 'json'){
+        return sequence
+      }
+    })
+  })
+}
 
 router.post(
   '/graphs',

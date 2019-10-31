@@ -72,6 +72,7 @@ import UndoManager from "../commands/UndoManager.js";
 import frenchFixer from "../services/FrenchFixer"
 import debounce from 'lodash.debounce';
 import GraphRuntimeError from '../automotron/errors/GraphRuntimeError';
+import axios from 'axios';
 
 export default {
   props: {
@@ -96,6 +97,7 @@ export default {
         { type: "generator", generator: "list" },
         { type: "generator", generator: "macro" },
         { type: "generator", generator: "proxy" },
+        { type: "generator", generator: "external-graph" },
         { type: "operator", operator: "split" },
         { type: "operator", operator: "loop" },
         { type: "operator", operator: "tag" },
@@ -108,7 +110,10 @@ export default {
   },
   methods: {
     build() {
-      this.graph = new AutomotronGraph(this.graphObj.graphData.graph);
+      this.graph = new AutomotronGraph(this.graphObj.graphData.graph, {
+        apiBaseUrl: window.location.href.includes('localhost') ? 'http://localhost:3000' : '',
+        axios
+      });
       this.board = new AutomotronBoardUI({
         el: this.$refs.container,
         graph: this.graph,

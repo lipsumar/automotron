@@ -10,14 +10,17 @@ import Macro from "./Macro";
 import Proxy from "./Proxy";
 import Tag from './Tag';
 import Logic from './Logic';
+import ExternalGraph from './ExternalGraph';
 import GraphRuntimeError from './errors/GraphRuntimeError'
 
 export default class AutomotronGraph {
-  constructor(state) {
+  constructor(state, opts) {
     this.nextNodeId = 0
     this.nodes = []
     this.links = []
     this.startContainer = null
+    this.apiBaseUrl = opts.apiBaseUrl;
+    this.axios = opts.axios;
     this.buildState(state)
     this.setStartContainer(this.getNode(state.startNodeId))
   }
@@ -77,6 +80,8 @@ export default class AutomotronGraph {
       generator = new Macro({ ...opts, graph: this })
     } else if (opts.generator === 'proxy') {
       generator = new Proxy({ ...opts, graph: this })
+    } else if( opts.generator === 'external-graph') {
+      generator = new ExternalGraph({ ...opts, graph: this, apiBaseUrl: this.apiBaseUrl })
     }
 
     generator.id = opts.id || this.getNewNodeId()

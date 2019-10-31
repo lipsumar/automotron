@@ -9,6 +9,7 @@ import MacroNodeUI from './MacroNodeUI';
 import ProxyNodeUI from './ProxyNodeUI';
 import TagNodeUI from './TagNodeUI';
 import LogicNodeUI from './LogicNodeUI.js';
+import ExternalGraphNodeUI from './ExternalGraphNodeUI.js';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -92,6 +93,13 @@ export default class BoardUI extends EventEmitter {
         stage: this.stage,
         layer: this.nodeLayer,
         value: node.rawValue,
+        pos: node.pos,
+      })
+    } else if (node.generator === 'external-graph') {
+      generator = new ExternalGraphNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.value,
         pos: node.pos,
       })
     }
