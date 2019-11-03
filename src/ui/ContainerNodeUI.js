@@ -70,6 +70,7 @@ export default class ContainerNodeUI extends BaseNodeUI {
 
     this.inlet = new InletUI(this, 'left')
 
+    this.selfInlet = new InletUI(this, 'center', {color:'rgba(0, 0, 0, 0)'});
 
     this.generatorInlet = new InletUI(this, 'top')
 
@@ -133,6 +134,12 @@ export default class ContainerNodeUI extends BaseNodeUI {
         x: this.agreementInlet.absX(),
         y: this.agreementInlet.absY() + 5
       }
+    } else if (inlet === 'self') {
+      console.log('uh?')
+      return {
+        x: 200,
+        y: 200
+      }
     }
 
   }
@@ -145,6 +152,8 @@ export default class ContainerNodeUI extends BaseNodeUI {
         return this.generatorInlet
       case 'agreement':
         return this.agreementInlet
+      case 'self':
+        return this.selfInlet
     }
   }
 

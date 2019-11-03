@@ -12,6 +12,10 @@ export default {
         return 0
       case 'right':
         return (this.node.hasOutlet.left ? SMALL_SIDE : 0) + this.node.rect.width() + this.offset.x
+      case 'center':
+        return center 
+          ? (this.node.hasOutlet.left ? SMALL_SIDE : 0) + this.node.rect.width()/2
+          : SMALL_SIDE * 2
     }
   },
 
@@ -28,6 +32,10 @@ export default {
       case 'left':
       case 'right':
         return (this.node.hasOutlet.top ? SMALL_SIDE : 0) + this.node.rect.height() / 2 + this.offset.y - (center ? 0 : this.height() / 2)
+      case 'center':
+        return center 
+          ? (this.node.hasOutlet.top ? SMALL_SIDE : 0) + this.node.rect.height()/2 
+          : SMALL_SIDE * 2
     }
   },
 
@@ -43,6 +51,8 @@ export default {
       case 'left':
       case 'right':
         return SMALL_SIDE
+      case 'center':
+        return this.node.rect.width() - SMALL_SIDE*2
     }
   },
 
@@ -54,6 +64,8 @@ export default {
       case 'left':
       case 'right':
         return LARGE_SIDE
+      case 'center':
+        return this.node.rect.height() - SMALL_SIDE*2
     }
   },
 

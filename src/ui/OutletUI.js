@@ -92,12 +92,12 @@ export default class OutletUI extends EventEmitter {
           }
 
           if (haveIntersection(movingRect, targetRect)) {
-            inlet.rect.fill('green')
+            //inlet.rect.fill('green')
             onContainer = container
           } else {
-            inlet.rect.fill('#999')
+            //inlet.rect.fill(inlet.color || '#999')
           }
-          inlet.rect.draw()
+          //inlet.rect.draw()
         })
 
       this.outletDragCurrentlyOnInlet = onContainer

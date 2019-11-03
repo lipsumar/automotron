@@ -11,10 +11,13 @@ import Proxy from "./Proxy";
 import Tag from './Tag';
 import Logic from './Logic';
 import ExternalGraph from './ExternalGraph';
+import DynamicList from './DynamicList';
 import GraphRuntimeError from './errors/GraphRuntimeError'
+import { EventEmitter } from "events";
 
-export default class AutomotronGraph {
+export default class AutomotronGraph extends EventEmitter {
   constructor(state, opts) {
+    super()
     this.nextNodeId = 0
     this.nodes = []
     this.links = []
@@ -82,6 +85,8 @@ export default class AutomotronGraph {
       generator = new Proxy({ ...opts, graph: this })
     } else if( opts.generator === 'external-graph') {
       generator = new ExternalGraph({ ...opts, graph: this, apiBaseUrl: this.apiBaseUrl })
+    } else if(opts.generator === 'dynamic-list') {
+      generator = new DynamicList({ ...opts, graph: this })
     }
 
     generator.id = opts.id || this.getNewNodeId()
@@ -177,6 +182,7 @@ export default class AutomotronGraph {
           console.log('  SET ' + container, '\n  --> ', evaluatedValue.value, '\n      ', JSON.stringify(evaluatedValue.agreement))
           this.sequence.push(evaluatedValue)
           if (seq) seq.push(evaluatedValue)
+          this.emit('setEvaluatedValue', { container, evaluatedValue })
         }
         if (evaluatedValue instanceof Array) {
           const joined = evaluatedValue.map(v => v.value).join(' ')
@@ -184,6 +190,7 @@ export default class AutomotronGraph {
           container.setEvaluatedValue({
             value: joined
           })
+          this.emit('setEvaluatedValue', { container, evaluatedValue: {value: joined} })
         }
 
         this.previousNode = container
@@ -246,6 +253,12 @@ export default class AutomotronGraph {
     console.log('agreement link', link)
     if (!link) return null
     return link.to
+  }
+
+  getContainersConnectedToNodeOutlet(node, outlet){
+    return this.links
+      .filter(l => l.from.id === node.id && l.fromOutlet === outlet)
+      .map(l => l.to)
   }
 
   setStartContainer(container) {

@@ -6,6 +6,7 @@ export default class InletUI{
     this.node = node
     this.side = side
     this.offset = opts.offset || {x: 0, y:0}
+    this.color = opts.color || '#BBB'
     Object.assign(this, BaseLetUI)
     this.build()
   }
@@ -16,7 +17,7 @@ export default class InletUI{
       y: this.y(false),
       width: this.width(),
       height: this.height(),
-      fill: '#BBB'
+      fill: this.color
     })
 
     this.node.group.add(this.rect)

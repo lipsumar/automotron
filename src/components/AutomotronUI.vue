@@ -98,6 +98,7 @@ export default {
         { type: "generator", generator: "macro" },
         { type: "generator", generator: "proxy" },
         { type: "generator", generator: "external-graph" },
+        { type: "generator", generator: "dynamic-list" },
         { type: "operator", operator: "split" },
         { type: "operator", operator: "loop" },
         { type: "operator", operator: "tag" },

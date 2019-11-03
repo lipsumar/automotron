@@ -10,6 +10,7 @@ import ProxyNodeUI from './ProxyNodeUI';
 import TagNodeUI from './TagNodeUI';
 import LogicNodeUI from './LogicNodeUI.js';
 import ExternalGraphNodeUI from './ExternalGraphNodeUI.js';
+import DynamicListNodeUI from './DynamicListNodeUI.js';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -100,6 +101,12 @@ export default class BoardUI extends EventEmitter {
         stage: this.stage,
         layer: this.nodeLayer,
         value: node.value,
+        pos: node.pos,
+      })
+    } else if (node.generator === 'dynamic-list') {
+      generator = new DynamicListNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
         pos: node.pos,
       })
     }
