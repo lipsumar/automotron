@@ -11,6 +11,7 @@ import TagNodeUI from './TagNodeUI';
 import LogicNodeUI from './LogicNodeUI.js';
 import ExternalGraphNodeUI from './ExternalGraphNodeUI.js';
 import DynamicListNodeUI from './DynamicListNodeUI.js';
+import NumberGeneratorNodeUI from './NumberGeneratorNodeUI.js';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -109,8 +110,14 @@ export default class BoardUI extends EventEmitter {
         layer: this.nodeLayer,
         pos: node.pos,
       })
+    } else if (node.generator === 'number') {
+      generator = new NumberGeneratorNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        pos: node.pos,
+      })
     }
-    
+
     this.setupNode(generator, node)
   }
 

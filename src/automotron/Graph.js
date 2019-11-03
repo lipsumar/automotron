@@ -12,6 +12,7 @@ import Tag from './Tag';
 import Logic from './Logic';
 import ExternalGraph from './ExternalGraph';
 import DynamicList from './DynamicList';
+import NumberGenerator from './NumberGenerator';
 import GraphRuntimeError from './errors/GraphRuntimeError'
 import { EventEmitter } from "events";
 
@@ -87,6 +88,8 @@ export default class AutomotronGraph extends EventEmitter {
       generator = new ExternalGraph({ ...opts, graph: this, apiBaseUrl: this.apiBaseUrl })
     } else if(opts.generator === 'dynamic-list') {
       generator = new DynamicList({ ...opts, graph: this })
+    } else if(opts.generator === 'number') {
+      generator = new NumberGenerator(opts)
     }
 
     generator.id = opts.id || this.getNewNodeId()
