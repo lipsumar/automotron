@@ -29,11 +29,13 @@ export default class Loop extends Operator{
   loop(){
     console.log('    loop '+this.loopCount)
     const next = this.graph.pickNextContainer(this)
-    return this.graph.recursiveSteps(next, null, this.graph.sequence).then(seq => {
+    return this.graph.recursiveSteps(next, null, []).then(seq => {
       this.all.push(...seq)
+      //this.graph.sequence.push(...seq)
       this.loopCount++
       if(this.loopCount === this.maxCount){
-        return this.all
+        //this.graph.sequence.push(...this.all)
+        return {value: this.graph.joinSequence(this.all)}
       }
       return this.loop()
     })
