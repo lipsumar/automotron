@@ -25,7 +25,9 @@ export default class Proxy extends Generator{
     const mySeq = []
     return this.graph.recursiveSteps(next, agreement, mySeq).then(seq => {
       this.evaluatedSequence = seq;
-      return seq
+      return {
+        value: this.graph.joinSequence(seq)
+      }
     })
   }
 
