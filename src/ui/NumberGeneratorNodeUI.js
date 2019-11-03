@@ -13,8 +13,18 @@ export default class NumberGeneratorNodeUI extends BaseNodeUI{
       bottom: true,
     }
     this.defaultStroke = '#6a0080';
+    this.value = opts.value;
     this.build()
     this.resize()
+  }
+
+  setValue(value){
+    this.value = value
+    if(this.value){
+      this.text.text('Number ['+this.value+']')
+    }else{
+      this.text.text('Number Generator')
+    }
   }
 
   build(){
@@ -29,7 +39,7 @@ export default class NumberGeneratorNodeUI extends BaseNodeUI{
       stroke: this.defaultStroke
     })
 
-    const headerText = new Konva.Text({
+    this.text = new Konva.Text({
       x: 4,
       y: 8,
       text: 'Number Generator',
@@ -47,7 +57,7 @@ export default class NumberGeneratorNodeUI extends BaseNodeUI{
 
     this.group.add(this.rect)
     //this.group.add(headerRect)
-    this.group.add(headerText)
+    this.group.add(this.text)
     //this.group.add(this.text)
     
   }
