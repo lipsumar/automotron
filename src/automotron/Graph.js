@@ -54,7 +54,8 @@ export default class AutomotronGraph extends EventEmitter {
       } else {
         this.createLink(from, to, {
           fromOutlet: link.from.outlet,
-          toInlet: link.to.inlet
+          toInlet: link.to.inlet,
+          separator: link.separator
         })
       }
 
@@ -126,7 +127,7 @@ export default class AutomotronGraph extends EventEmitter {
   }
 
   createLink(from, to, opts) {
-    const link = new Link({ from, to, fromOutlet: opts.fromOutlet, toInlet: opts.toInlet })
+    const link = new Link({ from, to, fromOutlet: opts.fromOutlet, toInlet: opts.toInlet, separator: opts.separator })
     this.links.push(link)
     return link
   }
@@ -156,7 +157,7 @@ export default class AutomotronGraph extends EventEmitter {
 
   run() {
     this.reset();
-    return this.recursiveSteps(this.startContainer);
+    return this.recursiveSteps(this.startContainer, null, this.sequence);
   }
 
   recursiveSteps(container, agreement = null, seq = null) {
@@ -164,7 +165,7 @@ export default class AutomotronGraph extends EventEmitter {
       if (nextContainer) {
         return this.recursiveSteps(nextContainer, null, seq);
       } else {
-        return seq || this.sequence
+        return seq //|| this.sequence
       }
     })
   }
@@ -183,13 +184,13 @@ export default class AutomotronGraph extends EventEmitter {
         if (evaluatedValue !== null && !(evaluatedValue instanceof Array)) {
           container.setEvaluatedValue(evaluatedValue)
           console.log('  SET ' + container, '\n  --> ', evaluatedValue.value, '\n      ', JSON.stringify(evaluatedValue.agreement))
-          this.sequence.push(evaluatedValue)
+          //this.sequence.push(evaluatedValue)
           if (seq) seq.push(evaluatedValue)
           this.emit('setEvaluatedValue', { container, evaluatedValue })
         }
         if (evaluatedValue instanceof Array) {
-          const joined = evaluatedValue.map(v => v.value).join(' ')
-          console.log('  SET ' + container, joined)
+          const joined = this.joinSequence(evaluatedValue) //evaluatedValue.map(v => v.value).join(' ')
+          console.log('  🤔SET ' + container, evaluatedValue, joined)
           container.setEvaluatedValue({
             value: joined
           })
@@ -198,7 +199,7 @@ export default class AutomotronGraph extends EventEmitter {
 
         this.previousNode = container
 
-        const nextContainer = this.pickNextContainer(container)
+        const nextContainer = this.pickNextContainer(container, seq)
         return { nextContainer, seq, evaluatedValue }
       })
   }
@@ -228,7 +229,7 @@ export default class AutomotronGraph extends EventEmitter {
     return container.evaluate(agreement)
   }
 
-  pickNextContainer(container) {
+  pickNextContainer(container, seq) {
     let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet === 'inlet')
     if (links.length === 0) return null
 
@@ -239,10 +240,12 @@ export default class AutomotronGraph extends EventEmitter {
       links = links.filter(l => l.fromOutlet === nextOutlet)
     }
 
+    let nextLink = sample(links)
     if (container.pickNextLink) {
-      return container.pickNextLink(links).to
+      nextLink = container.pickNextLink(links)
     }
-    return sample(links).to
+    if(seq) seq.push({separator: nextLink.separator})
+    return nextLink.to
   }
 
   getContainerGenerator(container) {
@@ -266,6 +269,10 @@ export default class AutomotronGraph extends EventEmitter {
 
   setStartContainer(container) {
     this.startContainer = container
+  }
+
+  joinSequence(sequence){
+    return sequence.map(i => i.value || i.separator).join('')
   }
 
   normalize() {

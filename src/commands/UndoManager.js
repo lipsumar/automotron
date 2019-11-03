@@ -9,6 +9,7 @@ import SelectNodeCommand from './SelectNodeCommand';
 import PasteCommand from './PasteCommand';
 import RemoveNodesCommand from './RemoveNodesCommand';
 import CreateLinkedContainer from './CreateLinkedContainerCommand';
+import ToggleLinkSeparator from './ToggleLinkSeparator'
 
 
 const commandMap = {
@@ -21,7 +22,8 @@ const commandMap = {
   select: SelectNodeCommand,
   paste: PasteCommand,
   removeNodes: RemoveNodesCommand,
-  createLinkedContainer: CreateLinkedContainer
+  createLinkedContainer: CreateLinkedContainer,
+  toggleLinkSeparator: ToggleLinkSeparator
 }
 
 export default class UndoManager extends EventEmitter{

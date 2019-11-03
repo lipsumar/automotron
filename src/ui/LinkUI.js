@@ -10,10 +10,12 @@ export default class LinkUI extends EventEmitter{
     this.toInlet = opts.toInlet
     this.fromOutlet = opts.fromOutlet
     this.bendy = opts.bendy 
+    this.link = opts.link
 
     this.line = new Konva.Line({
       stroke: opts.color,
-      tension: this.bendy ? 0.6 : 0
+      tension: this.bendy ? 0.6 : 0,
+      dash: [4, 4]
     })
     if(!opts.readOnly){
       this.line.on('mouseenter', () => {
@@ -24,6 +26,14 @@ export default class LinkUI extends EventEmitter{
         this.line.strokeWidth(2)
         this.layer.draw()
       })
+      this.line.on('click', e => {
+        if (e.evt.button === 2 || e.evt.ctrlKey) { // right click
+          console.log('rigth click line')
+          e.cancelBubble = true
+          this.emit('toggleSeparator')
+        }
+      })
+      this.link.on('setSeparator', this.reposition.bind(this))
     }
     
     this.reposition()
@@ -86,6 +96,8 @@ export default class LinkUI extends EventEmitter{
 
     points.push(to.x, to.y)
     this.line.points(points)
+
+    this.line.dashEnabled(this.link.separator === '')
 
     this.layer.draw()
   }

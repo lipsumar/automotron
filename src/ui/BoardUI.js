@@ -268,11 +268,15 @@ export default class BoardUI extends EventEmitter {
       fromOutlet: link.fromOutlet,
       bendy: link.type === 'agreement',
       color: link.type === 'agreement' ? 'green' : 'black',
-      readOnly: this.readOnly
+      readOnly: this.readOnly,
+      link
     })
     if(!this.readOnly){
       linkUI.on('dblclick', () => {
         this.undoManager.execute('removeLink', { link })
+      })
+      linkUI.on('toggleSeparator', () => {
+        this.undoManager.execute('toggleLinkSeparator', { link })
       })
     }
     

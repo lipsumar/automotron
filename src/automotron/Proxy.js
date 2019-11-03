@@ -12,7 +12,7 @@ export default class Proxy extends Generator{
     // either this proxy has run before,
     // then we return the same as before
     if(this.evaluatedSequence){
-      const joined = this.evaluatedSequence.map(v => v.value).join(' ')
+      const joined = this.graph.joinSequence(this.evaluatedSequence)// this.evaluatedSequence.map(v => v.value).join(' ')
       console.log('----->', joined)
       return Promise.resolve({
         value: joined,

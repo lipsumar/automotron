@@ -164,7 +164,7 @@ export default {
       this.graph.run()
         .then(sequence => {
           console.log('OUTPUT SEQUENCE', sequence)
-          this.outputText = sequence.map(i => i.value).join(" ");
+          this.outputText = this.graph.joinSequence(sequence)
         })
         .catch(err => {
           if(err instanceof GraphRuntimeError){

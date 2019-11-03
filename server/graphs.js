@@ -56,11 +56,11 @@ function runGraph(id, format){
     })
     return graphInstance.run().then(sequence => {
       if(format === 'text'){
-        return sequence.map(i => i.value).join(' ').replace(/\\n/g, '\n')
+        return graphInstance.joinSequence(sequence).replace(/\\n/g, '\n')
       }else if(format === 'json'){
         return sequence
       }else if(format==='html'){
-        return sequence.map(i => i.value).join(' ').replace(/\\n/g, '<br>')
+        return graphInstance.joinSequence(sequence).replace(/\\n/g, '<br>')
       }
     })
   })

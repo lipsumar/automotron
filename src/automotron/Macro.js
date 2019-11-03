@@ -14,6 +14,7 @@ export default class Macro extends Generator{
     const mySeq = []
     return this.graph.recursiveSteps(next, agreement, mySeq).then(seq => {
       console.log('Macro end=>', mySeq)
+      this.graph.sequence.push(...seq)
       return seq
     })
   }
