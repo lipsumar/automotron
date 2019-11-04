@@ -8,7 +8,7 @@ _This is a work in progress_
 
 ![screenshot](screenshot.png)
 
-* Try it here: <http://automotron.lipsumar.io>
+* **Try it here: [automotron.io](http://automotron.io)**
 * [Documentation en français :fr:](https://github.com/lipsumar/automotron/wiki/documentation)
 * [API documentation](https://github.com/lipsumar/automotron/wiki/API)
 
