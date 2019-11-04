@@ -48,8 +48,6 @@ or
 
 Most often than not, generating texts will rely on long lists (for example a list of 50+ names). Representing long lists using separate containers and alternate routes is not practical. In such cases, containers can be connected to generators:
 
-_Note: currently only the "list" generator is available. More generators will be added._
-
 ![an example showing the list generator](resources/list-generator.png)
 
 The above example could produce:
@@ -71,11 +69,7 @@ etc...
 
 Operators help to control the flow of the text, allowing loops or conditional structures.
 
-_Note: currently only the "split" operator is available. More operators will be added._
-
 The "split" operator allows to either go to route A or B. The chance A or B will be chosen can be defined, so there could be more chance to take a route than another
-
-_Note: the split operator is currently hard-coded at 50/50_
 
 ![an example showing the split operator](resources/split-operator.png)
 
