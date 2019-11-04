@@ -55,6 +55,15 @@ db.once('open', () => {
       cb(null, user);
     });
   });
+  
+  app.use(function(req, res, next){
+    const host = req.header("host");
+    if(host.match(/^www/){
+      res.redirect(301, host.replace('www.', '') + req.url);
+      return;
+    }
+    next();
+  });
 
   app.use(bodyParser.json());
   app.use(expressSession({ 
