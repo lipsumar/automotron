@@ -135,7 +135,14 @@ db.once('open', () => {
   app.use(admin)
 
   app.get('*', (req, res) => {
-    res.send(indexHtml);
+    res
+      .status(200)
+      .set({
+        "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+        'Expires': new Date(Date.now() - 2592000000).toUTCString(),
+        'Last-Modified': new Date(Date.now() - 2592000000).toUTCString()
+      })
+      .send(indexHtml);
   })
   
   const PORT = process.env.PORT || 3000;
