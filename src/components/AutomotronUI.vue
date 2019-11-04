@@ -58,7 +58,7 @@
             {{graphRuntimeError.extendedMessage}}
           </div>
         </div>
-        <p v-html="outputTextFixed.split('\\n').join('<br>')"></p>
+        <textarea :value="outputTextFixed.split('\\n').join('\n')"></textarea>
       </div>
     </div>
   </div>

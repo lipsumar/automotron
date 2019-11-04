@@ -127,6 +127,14 @@ form button, .btn{
   padding: 10px;
   overflow-y: auto;
 }
+.output__body textarea{
+  border:none;
+  width: 100%;
+  height: 100%;
+  font-size: 1rem;
+  font-family: 'Courier New', Courier, monospace;
+  outline:none;
+}
 .graph-error{
   background-color: #fff5f5;
   border: 2px solid red;
