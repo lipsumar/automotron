@@ -58,7 +58,7 @@ db.once('open', () => {
   
   app.use(function(req, res, next){
     const host = req.header("host");
-    if(host.match(/^www/){
+    if(host.match(/^www/)){
       res.redirect(301, host.replace('www.', '') + req.url);
       return;
     }
