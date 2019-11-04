@@ -157,7 +157,10 @@ export default class AutomotronGraph extends EventEmitter {
 
   run() {
     this.reset();
-    return this.recursiveSteps(this.startContainer, null, this.sequence);
+    return this.recursiveSteps(this.startContainer, null, this.sequence).then(sequence => {
+      console.log('Total steps:', this.stepsCount)
+      return sequence
+    })
   }
 
   recursiveSteps(container, agreement = null, seq = null) {
@@ -174,8 +177,8 @@ export default class AutomotronGraph extends EventEmitter {
     console.log('STEP ' + container)
 
     this.stepsCount++
-    if (this.stepsCount > 1000) {
-      console.log('inifnite loop')
+    if (this.stepsCount > 20000) {
+      alert('infinite loop')
       return
     }
 
