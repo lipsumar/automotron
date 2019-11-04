@@ -21,6 +21,15 @@ const path = require('path');
 const PUBLIC_DIR = process.env.PUBLIC_DIR || 'public'
 const indexHtml = require('fs').readFileSync(path.join(__dirname, `../${PUBLIC_DIR}/index.html`)).toString();
 
+app.use(function(req, res, next){
+  const host = req.header("host");
+  if(host.match(/^www/)){
+    res.redirect(301, 'http://' + host.replace('www.', '') );
+    return;
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname,`../${PUBLIC_DIR}`), {
   etag: false,
   setHeaders: (res, path) => {
@@ -54,15 +63,6 @@ db.once('open', () => {
       if (err) { return cb(err); }
       cb(null, user);
     });
-  });
-  
-  app.use(function(req, res, next){
-    const host = req.header("host");
-    if(host.match(/^www/)){
-      res.redirect(301, host.replace('www.', '') + req.url);
-      return;
-    }
-    next();
   });
 
   app.use(bodyParser.json());
