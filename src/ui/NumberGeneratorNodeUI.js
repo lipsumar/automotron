@@ -20,10 +20,14 @@ export default class NumberGeneratorNodeUI extends BaseNodeUI{
 
   setValue(value){
     this.value = value
+    this.updateTextValue()
+  }
+
+  updateTextValue(){
     if(this.value){
-      this.text.text('Number ['+this.value+']')
+      this.text.text('Number\n'+this.value)
     }else{
-      this.text.text('Number Generator')
+      this.text.text('Number\nGenerator')
     }
   }
 
@@ -40,14 +44,15 @@ export default class NumberGeneratorNodeUI extends BaseNodeUI{
     })
 
     this.text = new Konva.Text({
-      x: 4,
+      x: 0,
       y: 8,
-      text: 'Number Generator',
+      text: '',
       fontSize: 18,
       fill: '#fff',
       width: 150,
       align: 'center',
     })
+    this.updateTextValue()
   
     this.outlet = new OutletUI(this, 'bottom', {toInlet:'generator'})
     this.outlet.on('connect', uiNode => {

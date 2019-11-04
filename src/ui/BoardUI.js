@@ -114,6 +114,7 @@ export default class BoardUI extends EventEmitter {
       generator = new NumberGeneratorNodeUI({
         stage: this.stage,
         layer: this.nodeLayer,
+        value: node.value,
         pos: node.pos,
       })
     }
@@ -540,6 +541,8 @@ export default class BoardUI extends EventEmitter {
 
   onCopy(e){
     if(this.editing) return
+    if(window.getSelection().toString()) return;
+
     const uiNodes = this.getSelectedNodes();
     const nodes = uiNodes.map(uiNode => uiNode.node.normalize())
     const nodeIds = nodes.map(n => n.id)
