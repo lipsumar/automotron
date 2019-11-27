@@ -74,7 +74,7 @@ db.once('open', () => {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(cors({origin:/http:\/\/localhost:\d+/, credentials:true}))
+  app.use(cors({origin:/http(?:s?):\/\/(?:localhost|[a-z-]+\.lipsumar\.io)(?::\d+|)/, credentials:true}))
 
   app.post(
     '/login', 
