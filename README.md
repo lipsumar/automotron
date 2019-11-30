@@ -9,7 +9,7 @@ _This is a work in progress_
 ![screenshot](screenshot.png)
 
 * **Try it here: [automotron.io](http://automotron.io)**
-* [Documentation en français :fr:](https://github.com/lipsumar/automotron/wiki/documentation)
+* [Documentation en français :fr:](https://github.com/lipsumar/automotron/wiki/Documentation-FR)
 * [API documentation](https://github.com/lipsumar/automotron/wiki/API)
 
 
