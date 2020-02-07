@@ -12,6 +12,7 @@ import LogicNodeUI from './LogicNodeUI.js';
 import ExternalGraphNodeUI from './ExternalGraphNodeUI.js';
 import DynamicListNodeUI from './DynamicListNodeUI.js';
 import NumberGeneratorNodeUI from './NumberGeneratorNodeUI.js';
+import TemplateContainerNodeUI from './TemplateContainerNodeUI';
 
 export default class BoardUI extends EventEmitter {
   constructor(opts) {
@@ -62,13 +63,23 @@ export default class BoardUI extends EventEmitter {
 
   createContainer(node) {
     console.log('create containerUI for', node)
-    const container = new ContainerNodeUI({
-      stage: this.stage,
-      layer: this.nodeLayer,
-      value: node.value.raw,
-      pos: node.pos,
-      stroke: this.graph.startContainer.id === node.id ? 'green' : '#999'
-    })
+    let container;
+    if(node.container === 'template'){
+      container = new TemplateContainerNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.value.raw,
+        pos: node.pos,
+      })
+    }else{
+      container = new ContainerNodeUI({
+        stage: this.stage,
+        layer: this.nodeLayer,
+        value: node.value.raw,
+        pos: node.pos,
+        stroke: this.graph.startContainer.id === node.id ? 'green' : '#999'
+      })
+    }
     
     this.setupNode(container, node)
   }

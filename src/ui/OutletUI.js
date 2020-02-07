@@ -83,6 +83,7 @@ export default class OutletUI extends EventEmitter {
         .forEach(g => {
           const container = g._automotronNode
           const inlet = container.getInlet(this.toInlet)
+          if(!inlet) return
           //console.log('inlet', inlet)
           const targetRect = {
             x: inlet.absX(),

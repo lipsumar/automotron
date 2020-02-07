@@ -15,6 +15,7 @@ import DynamicList from './DynamicList';
 import NumberGenerator from './NumberGenerator';
 import GraphRuntimeError from './errors/GraphRuntimeError'
 import { EventEmitter } from "events";
+import TemplateContainer from "./Template";
 
 export default class AutomotronGraph extends EventEmitter {
   constructor(state, opts) {
@@ -71,10 +72,16 @@ export default class AutomotronGraph extends EventEmitter {
   }
 
   createContainer(opts) {
-    const c = new Container(opts)
-    c.id = opts.id || this.getNewNodeId()
-    this.nodes.push(c)
-    return c
+    let container;
+    if(opts.container === 'template'){
+      container = new TemplateContainer({...opts, graph: this})
+    }else {
+      container = new Container(opts)
+    }
+    
+    container.id = opts.id || this.getNewNodeId()
+    this.nodes.push(container)
+    return container
   }
 
   createGenerator(opts) {
@@ -233,7 +240,7 @@ export default class AutomotronGraph extends EventEmitter {
   }
 
   pickNextContainer(container, seq) {
-    let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet === 'inlet')
+    let links = this.links.filter(l => l.type === 'main' && l.from.id === container.id && l.toInlet === 'inlet' && l.fromOutlet!=='labels' /*&& (l.fromOutlet==='outlet' || l.fromOutlet==='container' || l.fromOutlet==='graph')*/)
     if (links.length === 0) return null
 
     if (container instanceof Operator) {

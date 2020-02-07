@@ -11,7 +11,7 @@
         v-for="(op,i) in contextMenuOptions"
         :key="`op-${i}`"
         @click="contextMenuChoice(op)"
-      >{{op.type}}: {{op.generator || op.operator}}</div>
+      >{{op.type}}: {{op.generator || op.operator || op.container}}</div>
     </div>
 
     <div
@@ -24,7 +24,7 @@
         @keyup.ctrl.enter="submitNodeEdit"
         @keyup.alt.enter="submitNodeEdit"
         @keydown.meta.enter="submitNodeEdit"
-        :style="{width: `${Math.max(nodeEdit.width, 150)}px`,height: `${nodeEdit.height}px`}"
+        :style="{width: `${Math.max(nodeEdit.width, 150)}px`,height: `${Math.min(nodeEdit.height, windowHeight-20)}px`}"
         ref="textarea"
       ></textarea>
     </div>
@@ -94,6 +94,7 @@ export default {
       nodeEditValue: "",
       contextMenu: null,
       contextMenuOptions: [
+        { type: "container", container: "template"},
         { type: "generator", generator: "list" },
         { type: "generator", generator: "macro" },
         { type: "generator", generator: "proxy" },
@@ -108,6 +109,7 @@ export default {
       outputOpen: true,
       autosaveEnabled: false,
       graphRuntimeError: null,
+      windowHeight: window.innerHeight
     };
   },
   methods: {
