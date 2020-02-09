@@ -1,24 +1,19 @@
 version: "3"
 
-networks:
-  proxy:
-    external: true
-  internal:
-    external: false
-
 services:
   app:
     build: .
     labels:
-      - traefik.backend=automotron
-      - traefik.frontend.rule=Host:automotron.lipsumar.io
-      - traefik.docker.network=proxy
-      - traefik.port=3000
+      - "traefik.http.routers.automotron.rule=Host(`automotron.lipsumar.io`)"
+      - "traefik.http.routers.automotron.tls.certresolver=le"
+      - "traefik.http.routers.automotron.entrypoints=websecure"
+      - "traefik.docker.network=traefik-external"
     environment:
       - MONGO_URL=mongodb://mongo:27017/prod
       - PUBLIC_DIR=dist
+      - API_BASE_URL=http://automotron.lipsumar.io
     networks: 
-      - proxy
+      - traefik-external
       - internal
     depends_on:
       - mongo
@@ -30,5 +25,10 @@ services:
     networks: 
       - internal
     labels:
-      - traefik.enable=false
+      - "traefik.enable=false"
 
+networks:
+  traefik-external:
+    external: true
+  internal:
+    external: false
